@@ -86,297 +86,295 @@ res_learn, gpi_learn, rpi_learn = JudiLingMeasures.learn_paths_rpi(
 ### Measures capturing comprehension (processing on the semantic side of the network)
 
 #### Measures of semantic vector length/uncertainty/activation
-**L1Norm**
+  **L1Norm**
 
-Computes the L1-Norm (city-block distance) of the predicted semantic vectors $\hat{S}$:
+  Computes the L1-Norm (city-block distance) of the predicted semantic vectors $\hat{S}$:
 
-Example:
-```
-JudiLingMeasures.L1Norm(Shat)
-```
+  Example:
+  ```
+  JudiLingMeasures.L1Norm(Shat)
+  ```
 
-Used in Schmitz et al. (2021), Stein and Plag (2021) (called Semantic Vector length in their paper)
+  Used in Schmitz et al. (2021), Stein and Plag (2021) (called Semantic Vector length in their paper)
 
-**L2Norm**
+  **L2Norm**
 
-Computes the L2-Norm (euclidean distance) of the predicted semantic vectors $\hat{S}$:
+  Computes the L2-Norm (euclidean distance) of the predicted semantic vectors $\hat{S}$:
 
-Example:
-```
-JudiLingMeasures.L2Norm(Shat)
-```
+  Example:
+  ```
+  JudiLingMeasures.L2Norm(Shat)
+  ```
 
-Used in Schmitz et al. (2021)
+  Used in Schmitz et al. (2021)
 
 #### Measures of semantic neighbourhood
 
-**Density**
+  **Density**
 
-Computes the average correlation/cosine similarity of each predicted semantic vector in $\hat{S}$ with the $n$ most correlated/closest semantic vectors in $S$:
+  Computes the average correlation/cosine similarity of each predicted semantic vector in $\hat{S}$ with the $n$ most correlated/closest semantic vectors in $S$:
 
-Example:
-```
-_, cor_s = JudiLing.eval_SC(Shat, S, R=true)
-correlation_density = JudiLingMeasures.density(cor_s, 10)
+  Example:
+  ```
+  _, cor_s = JudiLing.eval_SC(Shat, S, R=true)
+  correlation_density = JudiLingMeasures.density(cor_s, 10)
 
-cosine_sims = JudiLingMeasures.cosine_similarity(Shat, S)
-cosine_density = JudiLingMeasures.density(cosine_sim, 10)
-```
+  cosine_sims = JudiLingMeasures.cosine_similarity(Shat, S)
+  cosine_density = JudiLingMeasures.density(cosine_sim, 10)
+  ```
 
-Used in Heitmeier et al. (2022) (called Semantic Density, based on Cosine Similarity), Schmitz et al. (2021), Stein and Plag (2021) (called Semantic Density, based on correlation)
+  Used in Heitmeier et al. (2022) (called Semantic Density, based on Cosine Similarity), Schmitz et al. (2021), Stein and Plag (2021) (called Semantic Density, based on correlation)
 
-**ALC**
+  **ALC**
 
-Average Lexical Correlation. Computes the average correlation between each predicted semantic vector and all semantic vectors in $S$.
+  Average Lexical Correlation. Computes the average correlation between each predicted semantic vector and all semantic vectors in $S$.
 
-Example:
-```
-_, cor_s = JudiLing.eval_SC(Shat, S, R=true)
-JudiLingMeasures.ALC(cor_s)
-```
+  Example:
+  ```
+  _, cor_s = JudiLing.eval_SC(Shat, S, R=true)
+  JudiLingMeasures.ALC(cor_s)
+  ```
 
-Used in Schmitz et al. (2021), Chuang et al. (2020)
+  Used in Schmitz et al. (2021), Chuang et al. (2020)
 
-**EDNN**
+  **EDNN**
 
-Euclidean Distance Nearest Neighbour. Computes the euclidean distance between each predicted semantic vector and all semantic vectors in $S$ and returns for each predicted semantic vector the distance to the closest neighbour.
+  Euclidean Distance Nearest Neighbour. Computes the euclidean distance between each predicted semantic vector and all semantic vectors in $S$ and returns for each predicted semantic vector the distance to the closest neighbour.
 
-Example:
-```
-JudiLingMeasures.EDNN(Shat, S)
-```
+  Example:
+  ```
+  JudiLingMeasures.EDNN(Shat, S)
+  ```
 
-Used in Schmitz et al. (2021), Chuang et al. (2020)
+  Used in Schmitz et al. (2021), Chuang et al. (2020)
 
-**NNC**
+  **NNC**
 
-Nearest Neighbour Correlation. Computes the correlation between each predicted semantic vector and all semantic vectors in $S$ and returns for each predicted semantic vector the correlation to the closest neighbour.
+  Nearest Neighbour Correlation. Computes the correlation between each predicted semantic vector and all semantic vectors in $S$ and returns for each predicted semantic vector the correlation to the closest neighbour.
 
-Example:
-```
-_, cor_s = JudiLing.eval_SC(Shat, S, R=true)
-JudiLingMeasures.NNC(cor_s)
-```
+  Example:
+  ```
+  _, cor_s = JudiLing.eval_SC(Shat, S, R=true)
+  JudiLingMeasures.NNC(cor_s)
+  ```
 
-Used in Schmitz et al. (2021), Chuang et al. (2020)
+  Used in Schmitz et al. (2021), Chuang et al. (2020)
 
 #### Measures of comprehension accuracy
 
-**TargetCorrelation**
+  **TargetCorrelation**
 
-Correlation between each predicted semantic vector and its target semantic vector in $S$.
+  Correlation between each predicted semantic vector and its target semantic vector in $S$.
 
-Example:
-```
-_, cor_s = JudiLing.eval_SC(Shat, S, R=true)
-JudiLingMeasures.TargetCorrelation(cor_s)
-```
+  Example:
+  ```
+  _, cor_s = JudiLing.eval_SC(Shat, S, R=true)
+  JudiLingMeasures.TargetCorrelation(cor_s)
+  ```
 
-Used in Stein and Plag (2021)
+  Used in Stein and Plag (2021)
 
-**Rank**
+  **Rank**
 
-Rank of the correlation with the target semantics among the correlations between the predicted semantic vector and all semantic vectors in $S$.
+  Rank of the correlation with the target semantics among the correlations between the predicted semantic vector and all semantic vectors in $S$.
 
-Example:
-```
-_, cor_s = JudiLing.eval_SC(Shat, S, R=true)
-JudiLingMeasures.rank(cor_s)
-```
+  Example:
+  ```
+  _, cor_s = JudiLing.eval_SC(Shat, S, R=true)
+  JudiLingMeasures.rank(cor_s)
+  ```
 
-**Recognition**
+  **Recognition**
 
-Whether a word form was correctly comprehended. Not currently implemented.
+  Whether a word form was correctly comprehended. Not currently implemented.
 
-NOT YET IMPLEMENTED
-
-### Measures capturing production (processing on the form side of the network)
+  NOT YET IMPLEMENTED
 
 #### Measures of production accuracy/support/uncertainty for the predicted form
 
-**SCPP**
+  **SCPP**
 
-The correlation between the predicted semantics of the word form produced by the path algorithm and the target semantics.
+  The correlation between the predicted semantics of the word form produced by the path algorithm and the target semantics.
 
-Example:
-```
-df = JudiLingMeasures.get_res_learn_df(res_learn, latin, cue_obj, cue_obj)
-JudiLingMeasures.SCPP(df, latin)
-```
+  Example:
+  ```
+  df = JudiLingMeasures.get_res_learn_df(res_learn, latin, cue_obj, cue_obj)
+  JudiLingMeasures.SCPP(df, latin)
+  ```
 
-Used in Chuang et al. (2020) (based on WpmWithLDL)
+  Used in Chuang et al. (2020) (based on WpmWithLDL)
 
-**PathSum**
+  **PathSum**
 
-The summed path supports for the highest supported predicted form, produced by the path algorithm. Path supports are taken from the $\hat{Y}$ matrices.
+  The summed path supports for the highest supported predicted form, produced by the path algorithm. Path supports are taken from the $\hat{Y}$ matrices.
 
-Example:
-```
-pred_df = JudiLing.write2df(rpi_learn)
-JudiLingMeasures.path_sum(pred_df)
-```
+  Example:
+  ```
+  pred_df = JudiLing.write2df(rpi_learn)
+  JudiLingMeasures.path_sum(pred_df)
+  ```
 
-Used in Schmitz et al. (2021) (but based on WpmWithLDL)
+  Used in Schmitz et al. (2021) (but based on WpmWithLDL)
 
-**TargetPathSum**
+  **TargetPathSum**
 
-The summed path supports for the target word form, produced by the path algorithm. Path supports are taken from the $\hat{Y}$ matrices.
+  The summed path supports for the target word form, produced by the path algorithm. Path supports are taken from the $\hat{Y}$ matrices.
 
-Example:
-```
-JudiLingMeasures.target_path_sum(gpi_learn)
-```
-Used in Chuang et al. (2022) (but called Triphone Support)
+  Example:
+  ```
+  JudiLingMeasures.target_path_sum(gpi_learn)
+  ```
+  Used in Chuang et al. (2022) (but called Triphone Support)
 
-**PathSumChat**
+  **PathSumChat**
 
-The summed path supports for the highest supported predicted form, produced by the path algorithm. Path supports are taken from the $\hat{C}$ matrix.
+  The summed path supports for the highest supported predicted form, produced by the path algorithm. Path supports are taken from the $\hat{C}$ matrix.
 
-Example:
-```
-JudiLingMeasures.PathSumChat(res_learn, Chat)
-```
+  Example:
+  ```
+  JudiLingMeasures.PathSumChat(res_learn, Chat)
+  ```
 
-**C-Precision**
+  **C-Precision**
 
-Correlation between the predicted form vector and the target form vector.
+  Correlation between the predicted form vector and the target form vector.
 
-Example:
-```
-JudiLingMeasures.c_precision(Chat, cue_obj.C)
-```
+  Example:
+  ```
+  JudiLingMeasures.c_precision(Chat, cue_obj.C)
+  ```
 
-Used in Heitmeier et al. (2022), Gahl and Baayen (2022) (called Semantics to Form Mapping Precision)
+  Used in Heitmeier et al. (2022), Gahl and Baayen (2022) (called Semantics to Form Mapping Precision)
 
-**L1Chat**
+  **L1Chat**
 
-L1-Norm of the predicted $\hat{c}$ vectors.
+  L1-Norm of the predicted $\hat{c}$ vectors.
 
-Example:
-```
-JudiLingMeasures.L1Norm(Chat)
-```
+  Example:
+  ```
+  JudiLingMeasures.L1Norm(Chat)
+  ```
 
-Used in Heitmeier et al. (2022)
+  Used in Heitmeier et al. (2022)
 
-**Semantic Support for Form**
+  **Semantic Support for Form**
 
-Sum of activation of ngrams in the target wordform.
+  Sum of activation of ngrams in the target wordform.
 
-Example:
-```
-JudiLingMeasures.semantic_support_for_form(cue_obj, Chat)
-```
+  Example:
+  ```
+  JudiLingMeasures.semantic_support_for_form(cue_obj, Chat)
+  ```
 
-Used in Gahl and Baayen (2022) (unclear which package this was based on?)
+  Used in Gahl and Baayen (2022) (unclear which package this was based on?)
 
 
 #### Measures of support for the predicted path, focusing on the path transitions and components of the path
 
-**LastSupport**
+  **LastSupport**
 
-The support for the last trigram of each target word in the Chat matrix.
+  The support for the last trigram of each target word in the Chat matrix.
 
-Example:
-```
-JudiLingMeasures.last_support(latin, cue_obj, Chat)
-```
+  Example:
+  ```
+  JudiLingMeasures.last_support(latin, cue_obj, Chat)
+  ```
 
-Used in Schmitz et al. (2021) (called Support in their paper).
+  Used in Schmitz et al. (2021) (called Support in their paper).
 
-**WithinPathEntropies**
+  **WithinPathEntropies**
 
-The entropy over path supports for the highest supported predicted form, produced by the path algorithm. Path supports are taken from the $\hat{Y}$ matrices.
+  The entropy over path supports for the highest supported predicted form, produced by the path algorithm. Path supports are taken from the $\hat{Y}$ matrices.
 
-Example:
-```
-pred_df = JudiLing.write2df(rpi_learn)
-JudiLingMeasures.within_path_entropies(pred_df)
-```
+  Example:
+  ```
+  pred_df = JudiLing.write2df(rpi_learn)
+  JudiLingMeasures.within_path_entropies(pred_df)
+  ```
 
-**MeanWordSupport**
+  **MeanWordSupport**
 
-Summed path support divided by each word form's length. Path supports are taken from the $\hat{Y}$ matrices.
+  Summed path support divided by each word form's length. Path supports are taken from the $\hat{Y}$ matrices.
 
-Example:
-```
-pred_df = JudiLing.write2df(rpi_learn)
-JudiLingMeasures.mean_word_support(res_learn, pred_df)
-```
+  Example:
+  ```
+  pred_df = JudiLing.write2df(rpi_learn)
+  JudiLingMeasures.mean_word_support(res_learn, pred_df)
+  ```
 
-**MeanWordSupportChat**
+  **MeanWordSupportChat**
 
-Summed path support divided by each word form's length. Path supports are taken from the $\hat{C}$ matrix.
+  Summed path support divided by each word form's length. Path supports are taken from the $\hat{C}$ matrix.
 
-Example:
-```
-JudiLingMeasures.mean_word_support_chat(res_learn, Chat)
-```
+  Example:
+  ```
+  JudiLingMeasures.mean_word_support_chat(res_learn, Chat)
+  ```
 
-Used in Stein and Plag (2021) (but based on WpmWithLDL)
+  Used in Stein and Plag (2021) (but based on WpmWithLDL)
 
-**lwlr**
+  **lwlr**
 
-The ratio between the predicted form's length and its weakest support from the production algorithm. Supports taken from the $\hat{Y}$ matrices.
+  The ratio between the predicted form's length and its weakest support from the production algorithm. Supports taken from the $\hat{Y}$ matrices.
 
-Example:
-```
-pred_df = JudiLing.write2df(rpi_learn)
-JudiLingMeasures.lwlr(pred_df)
-```
+  Example:
+  ```
+  pred_df = JudiLing.write2df(rpi_learn)
+  JudiLingMeasures.lwlr(pred_df)
+  ```
 
-**lwlrChat**
+  **lwlrChat**
 
-The ratio between the predicted form's length and its weakest support. Supports taken from the $\hat{C}$ matrix.
+  The ratio between the predicted form's length and its weakest support. Supports taken from the $\hat{C}$ matrix.
 
-Example:
-```
-JudiLingMeasures.lwlrChat(res_learn, Chat)
-```
+  Example:
+  ```
+  JudiLingMeasures.lwlrChat(res_learn, Chat)
+  ```
 
 #### Measures of support for competing forms
 
-**PathCounts**
+  **PathCounts**
 
-The number of candidates predicted by the path algorithm.
+  The number of candidates predicted by the path algorithm.
 
-Example:
-```
-df = JudiLingMeasures.get_res_learn_df(res_learn, latin, cue_obj, cue_obj)
-JudiLingMeasures.PathCounts(df)
-```
+  Example:
+  ```
+  df = JudiLingMeasures.get_res_learn_df(res_learn, latin, cue_obj, cue_obj)
+  JudiLingMeasures.PathCounts(df)
+  ```
 
-Used in Schmitz et al. (2021) (but based on WpmWithLDL)
+  Used in Schmitz et al. (2021) (but based on WpmWithLDL)
 
-**PathEntropiesChat**
+  **PathEntropiesChat**
 
-The entropy over the summed path supports for the candidate forms produced by the path algorithm. Path supports are taken from the $\hat{C}$ matrix.
+  The entropy over the summed path supports for the candidate forms produced by the path algorithm. Path supports are taken from the $\hat{C}$ matrix.
 
-Example:
-```
-JudiLingMeasures.PathEntropiesChat(res_learn, Chat)
-```
+  Example:
+  ```
+  JudiLingMeasures.PathEntropiesChat(res_learn, Chat)
+  ```
 
-Used in Schmitz et al. (2021) (but based on WpmWithLDL), Stein and Plag (2021) (but based on WpmWithLDL)
+  Used in Schmitz et al. (2021) (but based on WpmWithLDL), Stein and Plag (2021) (but based on WpmWithLDL)
 
-**PathEntropiesSemanticSupport**
+  **PathEntropiesSemanticSupport**
 
-The entropy over the semantic supports for the candidate forms produced by the path algorithm.
+  The entropy over the semantic supports for the candidate forms produced by the path algorithm.
 
-Example:
-```
-df = JudiLingMeasures.get_res_learn_df(res_learn, latin, cue_obj, cue_obj)
-JudiLingMeasures.path_entropies_semantic_support(df)
-```
+  Example:
+  ```
+  df = JudiLingMeasures.get_res_learn_df(res_learn, latin, cue_obj, cue_obj)
+  JudiLingMeasures.path_entropies_semantic_support(df)
+  ```
 
-**ALDC**
+  **ALDC**
 
-Average Levenstein Distance of Candidates. Average of Levenshtein distance between each predicted word form candidate and the target word form.
+  Average Levenstein Distance of Candidates. Average of Levenshtein distance between each predicted word form candidate and the target word form.
 
-Example:
-```
-df = JudiLingMeasures.get_res_learn_df(res_learn, latin, cue_obj, cue_obj)
-JudiLingMeasures.ALDC(df)
-```
+  Example:
+  ```
+  df = JudiLingMeasures.get_res_learn_df(res_learn, latin, cue_obj, cue_obj)
+  JudiLingMeasures.ALDC(df)
+  ```
 
-Used in Schmitz et al. (2021), Chuang et al. (2020) (both based on WpmWithLDL)
+  Used in Schmitz et al. (2021), Chuang et al. (2020) (both based on WpmWithLDL)
