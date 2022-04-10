@@ -86,7 +86,7 @@ res_learn, gpi_learn, rpi_learn = JudiLingMeasures.learn_paths_rpi(
 ### Measures capturing comprehension (processing on the semantic side of the network)
 
 #### Measures of semantic vector length/uncertainty/activation
-  **L1Norm**
+- **L1Norm**
 
   Computes the L1-Norm (city-block distance) of the predicted semantic vectors $\hat{S}$:
 
@@ -97,7 +97,7 @@ res_learn, gpi_learn, rpi_learn = JudiLingMeasures.learn_paths_rpi(
 
   Used in Schmitz et al. (2021), Stein and Plag (2021) (called Semantic Vector length in their paper)
 
-  **L2Norm**
+- **L2Norm**
 
   Computes the L2-Norm (euclidean distance) of the predicted semantic vectors $\hat{S}$:
 
@@ -110,7 +110,7 @@ res_learn, gpi_learn, rpi_learn = JudiLingMeasures.learn_paths_rpi(
 
 #### Measures of semantic neighbourhood
 
-  **Density**
+- **Density**
 
   Computes the average correlation/cosine similarity of each predicted semantic vector in $\hat{S}$ with the $n$ most correlated/closest semantic vectors in $S$:
 
@@ -125,7 +125,7 @@ res_learn, gpi_learn, rpi_learn = JudiLingMeasures.learn_paths_rpi(
 
   Used in Heitmeier et al. (2022) (called Semantic Density, based on Cosine Similarity), Schmitz et al. (2021), Stein and Plag (2021) (called Semantic Density, based on correlation)
 
-  **ALC**
+- **ALC**
 
   Average Lexical Correlation. Computes the average correlation between each predicted semantic vector and all semantic vectors in $S$.
 
@@ -137,7 +137,7 @@ res_learn, gpi_learn, rpi_learn = JudiLingMeasures.learn_paths_rpi(
 
   Used in Schmitz et al. (2021), Chuang et al. (2020)
 
-  **EDNN**
+- **EDNN**
 
   Euclidean Distance Nearest Neighbour. Computes the euclidean distance between each predicted semantic vector and all semantic vectors in $S$ and returns for each predicted semantic vector the distance to the closest neighbour.
 
@@ -148,7 +148,7 @@ res_learn, gpi_learn, rpi_learn = JudiLingMeasures.learn_paths_rpi(
 
   Used in Schmitz et al. (2021), Chuang et al. (2020)
 
-  **NNC**
+- **NNC**
 
   Nearest Neighbour Correlation. Computes the correlation between each predicted semantic vector and all semantic vectors in $S$ and returns for each predicted semantic vector the correlation to the closest neighbour.
 
@@ -162,7 +162,7 @@ res_learn, gpi_learn, rpi_learn = JudiLingMeasures.learn_paths_rpi(
 
 #### Measures of comprehension accuracy
 
-  **TargetCorrelation**
+- **TargetCorrelation**
 
   Correlation between each predicted semantic vector and its target semantic vector in $S$.
 
@@ -174,7 +174,7 @@ res_learn, gpi_learn, rpi_learn = JudiLingMeasures.learn_paths_rpi(
 
   Used in Stein and Plag (2021)
 
-  **Rank**
+- **Rank**
 
   Rank of the correlation with the target semantics among the correlations between the predicted semantic vector and all semantic vectors in $S$.
 
@@ -184,7 +184,7 @@ res_learn, gpi_learn, rpi_learn = JudiLingMeasures.learn_paths_rpi(
   JudiLingMeasures.rank(cor_s)
   ```
 
-  **Recognition**
+- **Recognition**
 
   Whether a word form was correctly comprehended. Not currently implemented.
 
@@ -192,7 +192,7 @@ res_learn, gpi_learn, rpi_learn = JudiLingMeasures.learn_paths_rpi(
 
 #### Measures of production accuracy/support/uncertainty for the predicted form
 
-  **SCPP**
+- **SCPP**
 
   The correlation between the predicted semantics of the word form produced by the path algorithm and the target semantics.
 
@@ -204,7 +204,7 @@ res_learn, gpi_learn, rpi_learn = JudiLingMeasures.learn_paths_rpi(
 
   Used in Chuang et al. (2020) (based on WpmWithLDL)
 
-  **PathSum**
+- **PathSum**
 
   The summed path supports for the highest supported predicted form, produced by the path algorithm. Path supports are taken from the $\hat{Y}$ matrices.
 
@@ -216,7 +216,7 @@ res_learn, gpi_learn, rpi_learn = JudiLingMeasures.learn_paths_rpi(
 
   Used in Schmitz et al. (2021) (but based on WpmWithLDL)
 
-  **TargetPathSum**
+- **TargetPathSum**
 
   The summed path supports for the target word form, produced by the path algorithm. Path supports are taken from the $\hat{Y}$ matrices.
 
@@ -226,7 +226,7 @@ res_learn, gpi_learn, rpi_learn = JudiLingMeasures.learn_paths_rpi(
   ```
   Used in Chuang et al. (2022) (but called Triphone Support)
 
-  **PathSumChat**
+- **PathSumChat**
 
   The summed path supports for the highest supported predicted form, produced by the path algorithm. Path supports are taken from the $\hat{C}$ matrix.
 
@@ -235,7 +235,7 @@ res_learn, gpi_learn, rpi_learn = JudiLingMeasures.learn_paths_rpi(
   JudiLingMeasures.PathSumChat(res_learn, Chat)
   ```
 
-  **C-Precision**
+- **C-Precision**
 
   Correlation between the predicted form vector and the target form vector.
 
@@ -246,7 +246,7 @@ res_learn, gpi_learn, rpi_learn = JudiLingMeasures.learn_paths_rpi(
 
   Used in Heitmeier et al. (2022), Gahl and Baayen (2022) (called Semantics to Form Mapping Precision)
 
-  **L1Chat**
+- **L1Chat**
 
   L1-Norm of the predicted $\hat{c}$ vectors.
 
@@ -257,7 +257,7 @@ res_learn, gpi_learn, rpi_learn = JudiLingMeasures.learn_paths_rpi(
 
   Used in Heitmeier et al. (2022)
 
-  **Semantic Support for Form**
+- **Semantic Support for Form**
 
   Sum of activation of ngrams in the target wordform.
 
@@ -271,7 +271,7 @@ res_learn, gpi_learn, rpi_learn = JudiLingMeasures.learn_paths_rpi(
 
 #### Measures of support for the predicted path, focusing on the path transitions and components of the path
 
-  **LastSupport**
+- **LastSupport**
 
   The support for the last trigram of each target word in the Chat matrix.
 
@@ -282,7 +282,7 @@ res_learn, gpi_learn, rpi_learn = JudiLingMeasures.learn_paths_rpi(
 
   Used in Schmitz et al. (2021) (called Support in their paper).
 
-  **WithinPathEntropies**
+- **WithinPathEntropies**
 
   The entropy over path supports for the highest supported predicted form, produced by the path algorithm. Path supports are taken from the $\hat{Y}$ matrices.
 
@@ -292,7 +292,7 @@ res_learn, gpi_learn, rpi_learn = JudiLingMeasures.learn_paths_rpi(
   JudiLingMeasures.within_path_entropies(pred_df)
   ```
 
-  **MeanWordSupport**
+- **MeanWordSupport**
 
   Summed path support divided by each word form's length. Path supports are taken from the $\hat{Y}$ matrices.
 
@@ -302,7 +302,7 @@ res_learn, gpi_learn, rpi_learn = JudiLingMeasures.learn_paths_rpi(
   JudiLingMeasures.mean_word_support(res_learn, pred_df)
   ```
 
-  **MeanWordSupportChat**
+- **MeanWordSupportChat**
 
   Summed path support divided by each word form's length. Path supports are taken from the $\hat{C}$ matrix.
 
@@ -313,7 +313,7 @@ res_learn, gpi_learn, rpi_learn = JudiLingMeasures.learn_paths_rpi(
 
   Used in Stein and Plag (2021) (but based on WpmWithLDL)
 
-  **lwlr**
+- **lwlr**
 
   The ratio between the predicted form's length and its weakest support from the production algorithm. Supports taken from the $\hat{Y}$ matrices.
 
@@ -323,7 +323,7 @@ res_learn, gpi_learn, rpi_learn = JudiLingMeasures.learn_paths_rpi(
   JudiLingMeasures.lwlr(pred_df)
   ```
 
-  **lwlrChat**
+- **lwlrChat**
 
   The ratio between the predicted form's length and its weakest support. Supports taken from the $\hat{C}$ matrix.
 
@@ -334,7 +334,7 @@ res_learn, gpi_learn, rpi_learn = JudiLingMeasures.learn_paths_rpi(
 
 #### Measures of support for competing forms
 
-  **PathCounts**
+- **PathCounts**
 
   The number of candidates predicted by the path algorithm.
 
@@ -346,7 +346,7 @@ res_learn, gpi_learn, rpi_learn = JudiLingMeasures.learn_paths_rpi(
 
   Used in Schmitz et al. (2021) (but based on WpmWithLDL)
 
-  **PathEntropiesChat**
+- **PathEntropiesChat**
 
   The entropy over the summed path supports for the candidate forms produced by the path algorithm. Path supports are taken from the $\hat{C}$ matrix.
 
@@ -357,7 +357,7 @@ res_learn, gpi_learn, rpi_learn = JudiLingMeasures.learn_paths_rpi(
 
   Used in Schmitz et al. (2021) (but based on WpmWithLDL), Stein and Plag (2021) (but based on WpmWithLDL)
 
-  **PathEntropiesSemanticSupport**
+- **PathEntropiesSemanticSupport**
 
   The entropy over the semantic supports for the candidate forms produced by the path algorithm.
 
@@ -367,7 +367,7 @@ res_learn, gpi_learn, rpi_learn = JudiLingMeasures.learn_paths_rpi(
   JudiLingMeasures.path_entropies_semantic_support(df)
   ```
 
-  **ALDC**
+- **ALDC**
 
   Average Levenstein Distance of Candidates. Average of Levenshtein distance between each predicted word form candidate and the target word form.
 
