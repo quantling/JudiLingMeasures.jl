@@ -8,8 +8,6 @@ using StringDistances
 using JudiLing
 using DataFrames
 
-greet() = print("Hello World!")
-
 include("measures.jl")
 include("helpers.jl")
 
