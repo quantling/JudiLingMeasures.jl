@@ -297,7 +297,7 @@ end
 # LWLR (Length-Weakest-Link-Ratio from the WpmWithLDL package)
 # needs changes to the JudiLing learn path function
 """
-    lwlr(pred_df::DataFrame)
+    lwlr(res_learn, pred_df::DataFrame)
 The ratio between the predicted form's length and its weakest support from `learn_paths`.
 # Arguments
 - `pred_df::DataFrame`: The output of `get_predicted_path_support`
