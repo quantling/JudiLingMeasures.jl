@@ -232,7 +232,7 @@ res_learn, gpi_learn, rpi_learn = JudiLingMeasures.learn_paths_rpi(
 
   Example:
   ```
-  JudiLingMeasures.PathSumChat(res_learn, Chat)
+  JudiLingMeasures.path_sum_chat(res_learn, Chat)
   ```
 
 - **C-Precision**
@@ -277,7 +277,7 @@ res_learn, gpi_learn, rpi_learn = JudiLingMeasures.learn_paths_rpi(
 
   Example:
   ```
-  JudiLingMeasures.last_support(latin, cue_obj, Chat)
+  JudiLingMeasures.last_support(cue_obj, Chat)
   ```
 
   Used in Schmitz et al. (2021) (called Support in their paper).
@@ -320,7 +320,7 @@ res_learn, gpi_learn, rpi_learn = JudiLingMeasures.learn_paths_rpi(
   Example:
   ```
   pred_df = JudiLing.write2df(rpi_learn)
-  JudiLingMeasures.lwlr(pred_df)
+  JudiLingMeasures.lwlr(res_learn, pred_df)
   ```
 
 - **lwlrChat**
@@ -329,7 +329,7 @@ res_learn, gpi_learn, rpi_learn = JudiLingMeasures.learn_paths_rpi(
 
   Example:
   ```
-  JudiLingMeasures.lwlrChat(res_learn, Chat)
+  JudiLingMeasures.lwlr_chat(res_learn, Chat)
   ```
 
 #### Measures of support for competing forms
@@ -352,7 +352,7 @@ res_learn, gpi_learn, rpi_learn = JudiLingMeasures.learn_paths_rpi(
 
   Example:
   ```
-  JudiLingMeasures.PathEntropiesChat(res_learn, Chat)
+  JudiLingMeasures.path_entropies_chat(res_learn, Chat)
   ```
 
   Used in Schmitz et al. (2021) (but based on WpmWithLDL), Stein and Plag (2021) (but based on WpmWithLDL)

@@ -266,8 +266,6 @@ function learn_paths_rpi(
     verbose = false
     )
 
-    print("patched function used")
-
     res = JudiLing.learn_paths(
         data_train,
         data_val,
