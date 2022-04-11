@@ -357,14 +357,14 @@ res_learn, gpi_learn, rpi_learn = JudiLingMeasures.learn_paths_rpi(
 
   Used in Schmitz et al. (2021) (but based on WpmWithLDL), Stein and Plag (2021) (but based on WpmWithLDL)
 
-- **PathEntropiesSemanticSupport**
+- **PathEntropiesSCP**
 
   The entropy over the semantic supports for the candidate forms produced by the path algorithm.
 
   Example:
   ```
   df = JudiLingMeasures.get_res_learn_df(res_learn, latin, cue_obj, cue_obj)
-  JudiLingMeasures.path_entropies_semantic_support(df)
+  JudiLingMeasures.path_entropies_scp(df)
   ```
 
 - **ALDC**

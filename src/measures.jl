@@ -389,12 +389,12 @@ function path_entropies_chat(res_learn,
 end
 
 """
-    path_entropes_semantic_supports(df::DataFrame)
+    path_entropes_scp(df::DataFrame)
 Computes the entropy over the semantic supports for all candidates per target word form.
 # Arguments
 - `df::DataFrame`: DataFrame of the output of `learn_paths`.
 """
-function path_entropies_semantic_support(df::DataFrame)
+function path_entropies_scp(df::DataFrame)
     g = groupby(df, :utterance)
     c = combine(g, [:support] => entropy => :entropy)
     c[df[ismissing.(df.pred),:utterance],:entropy] .= 0
@@ -419,21 +419,3 @@ function lwlr_chat(res_learn, Chat)
     end
     lengths./weakest_links
 end
-
-# """
-#     SCPP(res, S, F)
-# Semantic Correlation of Predicted Production. The highest correlation of the semantics of the predicted word form with any of the semantic vectors in S.
-# """
-# function SCPP(res, S, F)
-#     n = size(res)
-#     ngrams_ind = JudiLing.make_ngrams_ind(res, n)
-#     Shat = zeros(Float64, size(S))
-#
-#     for i in 1:n[1]
-#         ci = ngrams_ind[i]
-#         Shat[i,:] = sum(F[ci, :], dims = 1)
-#     end
-#
-#     _, cor_s = JudiLing.eval_SC(Shat, S, R=true)
-#     NNC(cor_s)
-# end
