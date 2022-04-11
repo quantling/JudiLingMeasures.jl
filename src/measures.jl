@@ -189,7 +189,6 @@ Compute the summed path support for each target word.
 Code by Yu-Ying Chuang.
 """
 function target_path_sum(gpi)
-    #JudiLing.get_total_support(gpi)
     all_support = Vector{Float64}(undef, length(gpi))
     for i in 1:length(all_support)
         all_support[i] = sum(gpi[i].ngrams_ind_support)
@@ -418,5 +417,5 @@ function lwlr_chat(res_learn, Chat)
         l = Chat[i, n]
         append!(weakest_links, findmin(l)[1])
     end
-    lengths./weakest_links
+    vec(lengths./weakest_links)
 end
