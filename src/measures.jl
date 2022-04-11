@@ -1,7 +1,7 @@
 # L1NORM = SEMANTIC VECTOR LENGTH and L2NORM
 """
-    L1Norm(Shat::Union{JudiLing.SparseMatrixCSC, Matrix})
-Compute the L1 Norm of Shat.
+    L1Norm(M::Union{JudiLing.SparseMatrixCSC, Matrix})
+Compute the L1 Norm of each row of a matrix.
 # Examples
 ```jldoctest
 julia> Shat = [[1 2 3]; [-1 -2 -3]; [1 2 3]]
@@ -12,13 +12,13 @@ julia> L1Norm(Shat)
  6
 ```
 """
-function L1Norm(Shat::Union{JudiLing.SparseMatrixCSC, Matrix})
-    vec(l1_rowwise(Shat))
+function L1Norm(M::Union{JudiLing.SparseMatrixCSC, Matrix})
+    vec(l1_rowwise(M))
 end
 
 """
-    L2Norm(Shat::Union{JudiLing.SparseMatrixCSC, Matrix})
-Compute the L2 Norm of Shat.
+    L2Norm(M::Union{JudiLing.SparseMatrixCSC, Matrix})
+Compute the L2 Norm of each row of a matrix.
 # Examples
 ```jldoctest
 julia> Shat = [[1 2 3]; [-1 -2 -3]; [1 2 3]]
@@ -29,8 +29,8 @@ julia> L2Norm(Shat)
  3.7416573867739413
 ```
 """
-function L2Norm(Shat::Union{JudiLing.SparseMatrixCSC, Matrix})
-    vec(l2_rowwise(Shat))
+function L2Norm(M::Union{JudiLing.SparseMatrixCSC, Matrix})
+    vec(l2_rowwise(M))
 end
 
 """

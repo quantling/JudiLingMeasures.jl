@@ -16,7 +16,7 @@ If this step does not work, i.e. the version of JudiLing is still not 0.5.5, ref
 
 For a demo of this package, please see `notebooks/measures_demo.ipynb`.
 
-## Measures in this package
+## Calculating measures in this package
 
 The following gives an overview over all measures available in this package. For a closer description of the parameters, please refer to the documentation provided with the code. All measures come with examples. In order to run them, first run the following piece of code, taken from the [Readme of the JudiLing package](https://github.com/MegamindHenry/JudiLing.jl). For a detailed explanation of this code please refer to the [JudiLing Readme](https://github.com/MegamindHenry/JudiLing.jl) and [documentation](https://megamindhenry.github.io/JudiLing.jl/stable/).
 
@@ -56,7 +56,10 @@ Shat = cue_obj.C * F;
 
 A = cue_obj.A;
 max_t = JudiLing.cal_max_timestep(latin, :Word);
+```
 
+At the moment, there is a bug in `JudiLing.learn_paths_rpi`. We therefore use the patched version from `JudiLingMeasures`. Make sure that you set `check_gold_path=true`.
+```
 res_learn, gpi_learn, rpi_learn = JudiLingMeasures.learn_paths_rpi(
     latin,
     latin,
@@ -67,9 +70,9 @@ res_learn, gpi_learn, rpi_learn = JudiLingMeasures.learn_paths_rpi(
     A,
     cue_obj.i2f,
     cue_obj.f2i, # api changed in 0.3.1
-    #gold_ind = cue_obj.gold_ind,
-    #Shat_val = Shat,
-    #check_gold_path = false,
+    gold_ind = cue_obj.gold_ind,
+    Shat_val = Shat,
+    check_gold_path = true,
     max_t = max_t,
     max_can = 10,
     grams = 3,
@@ -82,6 +85,22 @@ res_learn, gpi_learn, rpi_learn = JudiLingMeasures.learn_paths_rpi(
     verbose = false,
 );
 ```
+
+All available measures can be simply computed with
+
+```
+all_measures = JudiLingMeasures.compute_all_measures(latin, # the data of interest
+                                                     cue_obj, # the cue_obj of the training data
+                                                     cue_obj, # the cue_obj of the data of interest
+                                                     Chat, # the Chat of the data of interest
+                                                     S, # the S matrix of the data of interest
+                                                     Shat, # the Shat matrix of the data of interest
+                                                     res_learn, # the output of learn_paths for the data of interest
+                                                     gpi_learn, # the gpi_learn object of the data of interest
+                                                     rpi_learn); # the rpi_learn object of the data of interest
+```
+
+## Overview over all available measures
 
 ### Measures capturing comprehension (processing on the semantic side of the network)
 

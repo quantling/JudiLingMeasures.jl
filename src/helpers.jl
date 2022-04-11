@@ -230,6 +230,8 @@ end
 """
     learn_paths_rpi(data_train, data_val, C_train, S_val, F_train, Chat_val, A, i2f, f2i)
 Calculate learn_paths with results indices supports as well.
+
+THIS IS A PATCH OF THE `JudiLing.learn_paths_rpi` as long as it is not fixed there. If it is, it will be removed from this package.
 """
 function learn_paths_rpi(
     data_train,
@@ -492,4 +494,93 @@ function indices_length(res)
         end
     end
     lengths
+end
+
+
+"""
+    compute_all_measures(data_val::DataFrame,
+                         cue_obj_train::JudiLing.Cue_Matrix_Struct,
+                         cue_obj_val::JudiLing.Cue_Matrix_Struct,
+                         Chat_val::Union{JudiLing.SparseMatrixCSC, Matrix},
+                         S_val::Union{JudiLing.SparseMatrixCSC, Matrix},
+                         Shat_val::Union{JudiLing.SparseMatrixCSC, Matrix},
+                         res_learn::Array{Array{JudiLing.Result_Path_Info_Struct,1},1},
+                         gpi_learn::Array{JudiLing.Gold_Path_Info_Struct,1},
+                         rpi_learn::Array{JudiLing.Gold_Path_Info_Struct,1})
+Compute all measures currently available in JudiLingMeasures for the data of interest.
+# Arguments
+- `data_val::DataFrame`: The data for which measures should be calculated (the data of interest).
+- `cue_obj_train::JudiLing.Cue_Matrix_Struct`: The cue object of the training data.
+- `cue_obj_val::JudiLing.Cue_Matrix_Struct`: The cue object of the data of interest.
+- `Chat_val::Union{JudiLing.SparseMatrixCSC, Matrix}`: The Chat matrix of the data of interest.
+- `S_val::Union{JudiLing.SparseMatrixCSC, Matrix}`: The S matrix of the data of interest.
+- `Shat_val::Union{JudiLing.SparseMatrixCSC, Matrix}`: The Shat matrix of the data of interest.
+- `res_learn::Array{Array{JudiLing.Result_Path_Info_Struct,1},1}`: The first output of JudiLingMeasures.learn_paths_rpi (with `check_gold_path=true`)
+- `gpi_learn::Array{JudiLing.Gold_Path_Info_Struct,1}`: The second output of JudiLingMeasures.learn_paths_rpi (with `check_gold_path=true`)
+- `rpi_learn::Array{JudiLing.Gold_Path_Info_Struct,1}`: The third output of JudiLingMeasures.learn_paths_rpi (with `check_gold_path=true`)
+# Returns
+- `results::DataFrame`: A dataframe with all information in `data_val` plus all the computed measures.
+"""
+function compute_all_measures(data_val::DataFrame,
+                              cue_obj_train::JudiLing.Cue_Matrix_Struct,
+                              cue_obj_val::JudiLing.Cue_Matrix_Struct,
+                              Chat_val::Union{JudiLing.SparseMatrixCSC, Matrix},
+                              S_val::Union{JudiLing.SparseMatrixCSC, Matrix},
+                              Shat_val::Union{JudiLing.SparseMatrixCSC, Matrix},
+                              res_learn::Array{Array{JudiLing.Result_Path_Info_Struct,1},1},
+                              gpi_learn::Array{JudiLing.Gold_Path_Info_Struct,1},
+                              rpi_learn::Array{JudiLing.Gold_Path_Info_Struct,1})
+    # MAKE PREPARATIONS
+
+    # generate additional objects for the measures such as
+    # - results: copy of data_val for storing the measures in
+    # - cor_s: the correlation matrix between Shat and S
+    # - df: DataFrame of res_learn, the output of learn_paths
+    # - pred_df: DataFrame with path supports for the predicted forms produced by learn_paths
+    results, cor_s, df, pred_df = make_measure_preparations(data_val, S_val, Shat_val,
+                                    res_learn, cue_obj_train, cue_obj_val, rpi_learn)
+
+
+    # CALCULATE MEASURES
+
+    # vector length/activation/uncertainty
+    results[!,"L1Shat"] = L1Norm(Shat_val)
+    results[!,"L2Shat"] = L2Norm(Shat_val)
+
+    # semantic neighbourhood
+    results[!,"SemanticDensity"] = density(cor_s)
+    results[!,"ALC"] = ALC(cor_s)
+    results[!,"EDNN"] = EDNN(Shat_val, S_val)
+    results[!,"NNC"] = NNC(cor_s)
+
+    # comprehension accuracy
+    results[!,"TargetCorrelation"] = target_correlation(cor_s)
+    results[!,"rank"] = rank(cor_s)
+    results[!,"recognition"] = recognition(data_val)
+
+    # production accuracy/support/uncertainty for the predicted form
+    results[!,"SCPP"] = SCPP(df, results)
+    results[!,"PathSum"] = path_sum(pred_df)
+    results[!,"TargetPathSum"] = target_path_sum(gpi_learn)
+    results[!,"PathSumChat"] = path_sum_chat(res_learn, Chat_val)
+    results[!,"C-Precision"] = c_precision(Chat_val, cue_obj_val.C)
+    results[!,"L1Chat"] = L1Norm(Chat_val)
+    results[!,"SemanticSupportForForm"] = semantic_support_for_form(cue_obj_val, Chat_val)
+
+    # support for the predicted path, focusing on the path transitions and components of the path
+    results[!,"WithinPathEntropies"] = within_path_entropies(pred_df)
+    results[!,"Support"] = last_support(cue_obj_val, Chat_val)
+    results[!,"MeanWordSupport"] = mean_word_support(res_learn, pred_df)
+    results[!,"MeanWordSupportChat"] = mean_word_support_chat(res_learn, Chat_val)
+    results[!,"lwlr"] = lwlr(res_learn, pred_df)
+    results[!,"lwlrChat"] = lwlr_chat(res_learn, Chat_val)
+
+    # support for competing forms
+    results[!,"PathCounts"] = path_counts(df)
+    results[!,"ALDC"] = ALDC(df)
+    results[!,"PathEntropiesSCP"] = path_entropies_scp(df)
+    results[!,"PathEntropiesChat"] = path_entropies_chat(res_learn, Chat_val)
+
+
+    results
 end
