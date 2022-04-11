@@ -118,4 +118,4 @@ cor_s = JudiLingMeasures.correlation_rowwise(ma2, ma3)
 
 @test isapprox(JudiLingMeasures.target_path_sum(gpi_learn), JudiLingMeasures.path_sum(pred_df))
 
-@test JudiLingMeasures.path_entropies_semantic_support(df) == vec([0. 0. 0.])
+@test JudiLingMeasures.path_entropies_scp(df) == vec([0. 0. 0.])
