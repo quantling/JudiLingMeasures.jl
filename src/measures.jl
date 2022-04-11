@@ -186,6 +186,7 @@ end
 """
     target_path_sum(gpi)
 Compute the summed path support for each target word.
+Code by Yu-Ying Chuang.
 """
 function target_path_sum(gpi)
     #JudiLing.get_total_support(gpi)
