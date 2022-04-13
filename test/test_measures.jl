@@ -88,24 +88,67 @@ cor_s = JudiLingMeasures.correlation_rowwise(ma2, ma3)
     @test isequal(JudiLingMeasures.density([[1 2 missing]; [-1 -2 -3]; [1 2 3]], n=2), [missing; -1.5; 2.5])
     @test_throws MethodError JudiLingMeasures.density(zeros((1,1))) == [0]
 end
-@test isapprox(JudiLingMeasures.ALC(cor_s), [0.18675475, -0.03090124999999999, -0.06819962499999999, 0.011247725000000014], rtol=1e-4)
 
-@test JudiLingMeasures.EDNN(ma1, ma4) == [1., sqrt(4), 1.]
+@testset "ALC" begin
+    @test isapprox(JudiLingMeasures.ALC(cor_s), [0.18675475, -0.03090124999999999, -0.06819962499999999, 0.011247725000000014], rtol=1e-4)
+    @test JudiLingMeasures.ALC(zeros((1,1))) == [0]
+    @test JudiLingMeasures.ALC(ones((1,1))) == [1]
+    @test isequal(JudiLingMeasures.ALC([[1 2 missing]; [-1 -2 -3]; [1 2 3]]), [missing; -2.; 2.])
+end
 
-@test isapprox(JudiLingMeasures.NNC(cor_s), [0.816497, 0.988623, 0.862538, 0.354787], rtol=1e-4)
+@testset "EDNN" begin
+    @test JudiLingMeasures.EDNN(ma1, ma4) == [1., sqrt(4), 1.]
+    @test JudiLingMeasures.EDNN(zeros((1,1)), zeros((1,1))) == [0]
+    @test JudiLingMeasures.EDNN(ones((1,1)), zeros((1,1))) == [1]
+    @test_throws MethodError JudiLingMeasures.EDNN([[1 2 missing]; [-1 -2 -3]; [1 2 3]], ma4)
+end
 
-@test isapprox(JudiLingMeasures.last_support(cue_obj, Chat), [0.99991, 0.999773, 0.999857], rtol=1e-4)
+@testset "NNC" begin
+    @test isapprox(JudiLingMeasures.NNC(cor_s), [0.816497, 0.988623, 0.862538, 0.354787], rtol=1e-4)
+    @test JudiLingMeasures.NNC(zeros((1,1))) == [0]
+    @test JudiLingMeasures.NNC(ones((1,1))) == [1]
+    @test isequal(JudiLingMeasures.NNC([[1 2 missing]; [-1 -2 -3]; [1 2 3]]), [missing; -1; 3])
+end
 
-@test JudiLingMeasures.path_counts(df) == [1,1, 1]
+@testset "last_support" begin
+    @test isapprox(JudiLingMeasures.last_support(cue_obj, Chat), [0.99991, 0.999773, 0.999857], rtol=1e-4)
+end
 
-@test isapprox(JudiLingMeasures.path_sum(pred_df), [2.979, 2.979, 2.979], rtol=1e-3)
+@testset "path_counts" begin
+    @test JudiLingMeasures.path_counts(df) == [1,1, 1]
+    df_mock = DataFrame("utterance"=>[1,1],
+                    "pred"=>["abc", "abd"])
+    @test JudiLingMeasures.path_counts(df_mock) == [2]
+    df_mock2 = DataFrame()
+    @test_throws ArgumentError JudiLingMeasures.path_counts(df_mock2)
+end
 
-# Note: the result of this is different to other entropy measures as a) the values are scaled between 0 and 1 first, and b) log2 instead of log is used
-@test isapprox(JudiLingMeasures.within_path_entropies(pred_df), [1.584962500721156, 1.584962500721156, 1.584962500721156], rtol=1e-1)
+@testset "path_sum" begin
+    @test isapprox(JudiLingMeasures.path_sum(pred_df), [2.979, 2.979, 2.979], rtol=1e-3)
+    pred_df_mock = DataFrame("timestep_support"=>[missing, [1,2,3], [0,0,0], [0,1,missing]])
+    @test isequal(JudiLingMeasures.path_sum(pred_df_mock), [missing; 6; 0; missing])
+end
 
-@test JudiLingMeasures.ALDC(df) == [0, 0, 0]
+@testset "within_path_entropies" begin
+    # Note: the result of this is different to other entropy measures as a) the values are scaled between 0 and 1 first, and b) log2 instead of log is used
+    @test isapprox(JudiLingMeasures.within_path_entropies(pred_df), [1.584962500721156, 1.584962500721156, 1.584962500721156], rtol=1e-1)
+    pred_df_mock = DataFrame("timestep_support"=>[missing, [0,1,missing]])
+    @test isequal(JudiLingMeasures.within_path_entropies(pred_df_mock), [missing, missing])
+    pred_df_mock2 = DataFrame("timestep_support"=>[[1,2,3], [0,0,0]])
+    @test isapprox(JudiLingMeasures.within_path_entropies(pred_df_mock2), [JudiLingMeasures.entropy([1,2,3]), 0.])
+end
 
-@test isapprox(JudiLingMeasures.mean_word_support(res_learn, pred_df), [0.993288, 0.993288, 0.993288], rtol=1e-4)
+@testset "ALDC" begin
+    @test JudiLingMeasures.ALDC(df) == [0, 0, 0]
+    df_mock = DataFrame("utterance"=>[1,1],
+                    "pred"=>["abc", "abd"],
+                    "identifier"=>["abc", "abc"])
+    @test JudiLingMeasures.ALDC(df_mock) == [0.5]
+end
+
+@testset "Mean word support" begin
+    @test isapprox(JudiLingMeasures.mean_word_support(res_learn, pred_df), [0.993288, 0.993288, 0.993288], rtol=1e-4)
+end
 
 @test isapprox(JudiLingMeasures.target_correlation(cor_s), [0.662266, 0.29554, -0.863868, 0.354787], rtol=1e-4)
 

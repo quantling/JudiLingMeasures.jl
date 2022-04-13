@@ -100,13 +100,15 @@ julia> mean_rowwise(ma1)
 ```
 """
 function mean_rowwise(S::Union{JudiLing.SparseMatrixCSC, Matrix})
-    mean(S, dims=2)
+    map(mean, eachrow(S))
 end
 
 """
     euclidean_distance_array(Shat::Union{JudiLing.SparseMatrixCSC, Matrix},
                              S::Union{JudiLing.SparseMatrixCSC, Matrix})
 Calculate the pairwise Euclidean distances between all rows in Shat and S.
+
+Throws error if missing is included in any of the arrays.
 # Examples
 ```jldoctest
 julia> ma1 = [[1 2 3]; [-1 -2 -3]; [1 2 3]]
@@ -157,8 +159,16 @@ julia> max_rowwise(ma1)
 ```
 """
 function max_rowwise(S::Union{JudiLing.SparseMatrixCSC, Matrix})
-      cor_nnc, _ = findmax(S; dims=2);
-      cor_nnc
+
+    function findmax_custom(x)
+        if any(ismissing.(x))
+            missing
+        else
+            findmax(x)[1]
+        end
+    end
+    cor_nnc = map(findmax_custom, eachrow(S));
+    cor_nnc
 end
 
 """
@@ -191,8 +201,10 @@ function get_avg_levenshtein(targets::Union{Array, SubArray}, preds::Union{Array
 end
 
 """
-    entropy(ps::Union{Array, SubArray})
+    entropy(ps::Union{Missing, Array, SubArray})
 Compute the Shannon-Entropy of the values in ps bigger than 0.
+
+Note: the result of this is entropy function is different to other entropy measures as a) the values are scaled between 0 and 1 first, and b) log2 instead of log is used
 # Examples
 ```jldoctest
 julia> ps = [0.1, 0.2, 0.9]
@@ -200,9 +212,9 @@ julia> entropy(ps)
 1.0408520829727552
 ```
 """
-function entropy(ps::Union{Array, SubArray})
-    if length(ps) > 0
-        ps = ps[Not(ismissing.(ps))]
+function entropy(ps::Union{Missing, Array, SubArray})
+    if (!any(ismissing.(ps)) && length(ps) > 0)
+        #ps = ps[Not(ismissing.(ps))]
         ps = ps[ps.>0]
         p = ps./sum(ps)
         -sum(p.*log2.(p))
@@ -464,8 +476,10 @@ julia> safe_sum([1,2,3])
 6
 ```
 """
-function safe_sum(x::Array)
-    if length(x) > 0
+function safe_sum(x::Union{Missing, Array})
+    if ismissing(x)
+        missing
+    elseif length(x) > 0
         sum(x)
     else
         missing
