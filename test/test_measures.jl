@@ -59,18 +59,35 @@ results, cor_s_all, df, pred_df = JudiLingMeasures.make_measure_preparations(dat
 
 # tests
 
-@test cor_s_all == cor(Shat, S, dims=2)
+@testset "Make measure preparations" begin
+    @test cor_s_all == cor(Shat, S, dims=2)
+    @test results == dat
+end
 
-@test results == dat
+@testset "L1 Norm" begin
+    @test JudiLingMeasures.L1Norm(ma1) == [6; 6; 6]
+    @test JudiLingMeasures.L1Norm(zeros((1,1))) == [0]
+    @test JudiLingMeasures.L1Norm(ones((1,1))) == [1]
+    @test isequal(JudiLingMeasures.L1Norm([[1 2 missing]; [-1 -2 -3]; [1 2 3]]), [missing; 6; 6])
+end
 
-@test JudiLingMeasures.L1Norm(ma1) == [6; 6; 6]
+@testset "L2 Norm" begin
+    @test JudiLingMeasures.L2Norm(ma1) == [sqrt(14); sqrt(14); sqrt(14)]
+    @test JudiLingMeasures.L2Norm(zeros((1,1))) == [0]
+    @test JudiLingMeasures.L2Norm(ones((1,1))) == [1]
+    @test isequal(JudiLingMeasures.L2Norm([[1 2 missing]; [-1 -2 -3]; [1 2 3]]), [missing; sqrt(14); sqrt(14)])
+end
 
-@test JudiLingMeasures.L2Norm(ma1) == [sqrt(14); sqrt(14); sqrt(14)]
 
 cor_s = JudiLingMeasures.correlation_rowwise(ma2, ma3)
 
-@test isapprox(JudiLingMeasures.density(cor_s, n=2), vec([0.7393784999999999 0.6420815 0.44968675 0.2811505]), rtol=1e-4)
-
+@testset "Density" begin
+    @test isapprox(JudiLingMeasures.density(cor_s, n=2), vec([0.7393784999999999 0.6420815 0.44968675 0.2811505]), rtol=1e-4)
+    @test JudiLingMeasures.density(zeros((1,1)), n=1) == [0]
+    @test JudiLingMeasures.density(ones((1,1)), n=1) == [1]
+    @test isequal(JudiLingMeasures.density([[1 2 missing]; [-1 -2 -3]; [1 2 3]], n=2), [missing; -1.5; 2.5])
+    @test_throws MethodError JudiLingMeasures.density(zeros((1,1))) == [0]
+end
 @test isapprox(JudiLingMeasures.ALC(cor_s), [0.18675475, -0.03090124999999999, -0.06819962499999999, 0.011247725000000014], rtol=1e-4)
 
 @test JudiLingMeasures.EDNN(ma1, ma4) == [1., sqrt(4), 1.]

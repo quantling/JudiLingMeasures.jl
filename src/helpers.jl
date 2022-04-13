@@ -76,7 +76,10 @@ julia> sem_density_mean(cor_s, 2)
 """
 function sem_density_mean(s_cor::Union{JudiLing.SparseMatrixCSC, Matrix},
                           n::Int)
-    sems = zeros(size(s_cor)[1])
+    if n > size(s_cor,2)
+        throw(MethodError(n, "n larger than the dimension of the semantic vectors"))
+    end
+    sems = Vector{Union{Missing, Float32}}(missing, size(s_cor,1))
     for i in 1:size(s_cor)[1]
         sems[i] = mean(s_cor[i,:][partialsortperm(s_cor[i, :], 1:n, rev=true)])
     end
@@ -199,6 +202,7 @@ julia> entropy(ps)
 """
 function entropy(ps::Union{Array, SubArray})
     if length(ps) > 0
+        ps = ps[Not(ismissing.(ps))]
         ps = ps[ps.>0]
         p = ps./sum(ps)
         -sum(p.*log2.(p))
@@ -391,9 +395,13 @@ function make_measure_preparations(data_val, S_val, Shat_val,
 
     # represent the res_learn object as a dataframe
     df = get_res_learn_df(res_learn, results, cue_obj_train, cue_obj_val)
+    missing_ind = df.utterance[ismissing.(df[!,:pred])]
+    df_sub = df[Not(ismissing.(df.pred)),:]
+
 
     rpi_df = JudiLing.write2df(rpi_learn)
-    rpi_df[:,:pred] = df[df.isbest .== true,:pred]
+    rpi_df[:, :pred] = Vector{Union{Missing, String}}(missing, size(data_val,1))
+    rpi_df[Not(missing_ind),:pred] = df_sub[df_sub.isbest .== true,:pred]
 
     results, cor_s, df, rpi_df
 end
@@ -482,7 +490,6 @@ function safe_length(x::Union{Missing, String})
         length(x)
     end
 end
-
 
 function indices_length(res)
     lengths = []

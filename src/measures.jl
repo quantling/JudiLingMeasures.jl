@@ -35,7 +35,7 @@ end
 
 """
     density(cor_s::Union{JudiLing.SparseMatrixCSC, Matrix};
-            n::Int=8)
+            n::Int=8, ignore_missing::Bool=false)
 Compute the average correlation of each predicted semantic vector with its n most correlated neighbours.
 # Arguments
 - `s_cor::Union{JudiLing.SparseMatrixCSC, Matrix}`: the correlation matrix between S and Shat
@@ -376,18 +376,20 @@ end
 function path_entropies_chat(res_learn,
                              Chat::Union{JudiLing.SparseMatrixCSC, Matrix})
 
-    entropies = []
+    entropies = Vector{Union{Missing, Float32}}(missing, size(res_learn, 1))
     for i=1:size(res_learn)[1]
-        sums = []
-        for cand in res_learn[i]
-            s = Chat[i, cand.ngrams_ind]
-            append!(sums, sum(s))
+        sums = Vector{Union{Missing, Float32}}(missing, size(res_learn[i], 1))
+        for (j, cand) in enumerate(res_learn[i])
+            if !ismissing(cand.ngrams_ind)
+                s = Chat[i, cand.ngrams_ind]
+                sums[j] = sum(s)
+            end
+
         end
-        append!(entropies, entropy(sums))
+        entropies[i] = entropy(sums)
     end
     vec(entropies)
 end
-
 """
     path_entropes_scp(df::DataFrame)
 Computes the entropy over the semantic supports for all candidates per target word form.
@@ -409,13 +411,18 @@ The ratio between the predicted form's length and its weakest support in Chat.
 """
 function lwlr_chat(res_learn, Chat)
     n = size(res_learn)
+
     ngrams = JudiLing.make_ngrams_ind(res_learn, n)
-    weakest_links = []
-    lengths = []
+
+    weakest_links = Vector{Union{Missing, Float32}}(missing, n)
+    lengths = Vector{Union{Missing, Int64}}(missing, n)
+
     for (i, n) in enumerate(ngrams)
-        append!(lengths, length(n))
-        l = Chat[i, n]
-        append!(weakest_links, findmin(l)[1])
+        if (!ismissing(n) && !(length(n) < 1))
+            lengths[i] = length(n)
+            l = Chat[i, n]
+            weakest_links[i] = findmin(l)[1]
+        end
     end
     vec(lengths./weakest_links)
 end
