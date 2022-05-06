@@ -1,7 +1,6 @@
 # JudiLingMeasures.jl
 
-
-This is code for JudiLingMeasures.
+PLEASE NOTE THAT THIS PACKAGE IS WORK IN PROGRESS. MAJOR CHANGES TO THE CODE ARE POSSIBLE AT ANY POINT AND NEW MEASURES ARE STILL BEING ADDED.
 
 Requires JudiLing 0.5.5. Update your JudiLing version by running
 
