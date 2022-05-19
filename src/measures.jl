@@ -150,12 +150,16 @@ end
 Return the support in `Chat` for all target ngrams of each target word.
 """
 function semantic_support_for_form(cue_obj::JudiLing.Cue_Matrix_Struct,
-                      Chat::Union{JudiLing.SparseMatrixCSC, Matrix})
+                      Chat::Union{JudiLing.SparseMatrixCSC, Matrix}; sum_supports=true)
     ngrams = cue_obj.gold_ind
     support = []
     for (index, n) in enumerate(ngrams)
         s = Chat[index, n]
-        append!(support, sum(s))
+        if sum_supports
+            append!(support, sum(s))
+        else
+            append!(support, [s])
+        end
     end
     vec(support)
 end
@@ -230,7 +234,8 @@ Compute the summed path support divided by each word form's length for each word
 function mean_word_support(res_learn, pred_df::DataFrame)
     lengths = indices_length(res_learn)
     path_sums = path_sum(pred_df)
-    path_sums./lengths
+    res = map(safe_divide, path_sums, lengths)
+    res
 end
 
 """
@@ -366,7 +371,7 @@ Compute the summed path support, taken from Chat, divided by each word form's le
 function mean_word_support_chat(res_learn, Chat)
     lengths = indices_length(res_learn)
     path_sums = path_sum_chat(res_learn, Chat)
-    path_sums./lengths
+    map(safe_divide, path_sums, lengths)
 end
 
 """
@@ -426,3 +431,69 @@ function lwlr_chat(res_learn, Chat)
     end
     vec(lengths./weakest_links)
 end
+
+
+"""
+    total_distance(cue_obj::JudiLing.Cue_Matrix_Struct,
+                   FG::Union{JudiLing.SparseMatrixCSC, Matrix},
+                   mat_type::Symbol)
+Code by Yu-Ying Chuang.
+"""
+function total_distance(cue_obj::JudiLing.Cue_Matrix_Struct,
+                        FG::Union{JudiLing.SparseMatrixCSC, Matrix},
+                        mat_type::Symbol)
+
+    if mat_type == :G
+		FG = FG'
+	end
+
+    all_dist = Vector{Float64}(undef, length(cue_obj.gold_ind))
+	for i in 1:length(all_dist)
+	    gis = cue_obj.gold_ind[i]
+	    dist1 = evaluate(Euclidean(), zeros(size(FG)[2]), FG[gis[1],:])
+
+	    tot_dist = dist1
+	    if length(gis)!=1
+	        for j in 2:length(gis)
+	            tmp_dist = evaluate(Euclidean(), FG[gis[(j-1)],:], FG[gis[j],:])
+	            tot_dist += tmp_dist
+	        end
+	    end
+        all_dist[i] = tot_dist
+	end
+	return(all_dist)
+end
+
+
+"""
+    function uncertainty(SC::Union{JudiLing.SparseMatrixCSC, Matrix},
+                         SChat::Union{JudiLing.SparseMatrixCSC, Matrix})
+
+Measure developed by Motoki Saito.
+"""
+function uncertainty(SC::Union{JudiLing.SparseMatrixCSC, Matrix},
+                     SChat::Union{JudiLing.SparseMatrixCSC, Matrix})
+    cor_sc = JudiLingMeasures.correlation_rowwise(SChat, SC)
+    ranks = mapreduce(permutedims, vcat, map(x -> sortperm(x, rev=true), eachrow(cor_sc)))
+    sum(cor_sc .* ranks, dims=2)
+end
+
+"""
+    function functional_load(F::Union{JudiLing.SparseMatrixCSC, Matrix},
+                             Shat::Union{JudiLing.SparseMatrixCSC, Matrix},
+                             cue_obj::JudiLing.Cue_Matrix_Struct)
+Measure developed by Motoki Saito.
+"""
+function functional_load(F::Union{JudiLing.SparseMatrixCSC, Matrix},
+                         Shat::Union{JudiLing.SparseMatrixCSC, Matrix},
+                         cue_obj::JudiLing.Cue_Matrix_Struct)
+
+     ngrams = cue_obj.gold_ind
+     cor_fs = JudiLingMeasures.correlation_rowwise(F, Shat)
+     functional_loads = []
+     for (index, n) in enumerate(ngrams)
+         s = cor_fs[n, index]
+         append!(functional_loads, [s])
+     end
+     functional_loads
+ end

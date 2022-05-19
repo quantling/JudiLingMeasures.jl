@@ -69,6 +69,7 @@ end
     @test JudiLingMeasures.L1Norm(zeros((1,1))) == [0]
     @test JudiLingMeasures.L1Norm(ones((1,1))) == [1]
     @test isequal(JudiLingMeasures.L1Norm([[1 2 missing]; [-1 -2 -3]; [1 2 3]]), [missing; 6; 6])
+    @test isapprox(JudiLingMeasures.L1Norm(Chat), map(sum, eachrow(abs.(Chat))))
 end
 
 @testset "L2 Norm" begin
@@ -150,32 +151,96 @@ end
     @test isapprox(JudiLingMeasures.mean_word_support(res_learn, pred_df), [0.993288, 0.993288, 0.993288], rtol=1e-4)
 end
 
-@test isapprox(JudiLingMeasures.target_correlation(cor_s), [0.662266, 0.29554, -0.863868, 0.354787], rtol=1e-4)
+@testset "TargetCorrelation" begin
+    @test isapprox(JudiLingMeasures.target_correlation(cor_s), [0.662266, 0.29554, -0.863868, 0.354787], rtol=1e-4)
+    @test isapprox(JudiLingMeasures.target_correlation(zeros(1,1)), [0.], rtol=1e-4)
+    @test isapprox(JudiLingMeasures.target_correlation(ones(1,1)), [1.], rtol=1e-4)
+    @test isequal(JudiLingMeasures.target_correlation(Matrix{Missing}(missing, 1,1)), [missing])
+end
 
-@test JudiLingMeasures.rank(cor_s) == [2,2,4,1]
+@testset "Rank" begin
+    @test JudiLingMeasures.rank(cor_s) == [2,2,4,1]
+    @test JudiLingMeasures.rank(zeros(1,1)) == [1]
+    @test JudiLingMeasures.rank(ones(1,1)) == [1]
+    @test isequal(JudiLingMeasures.target_correlation(Matrix{Missing}(missing, 1,1)), [missing])
+end
 
-@test isapprox(JudiLingMeasures.lwlr(res_learn, pred_df), [3. /0.993288, 3. /0.993152, 3. /0.993235], rtol=1e-4)
+@testset "lwlr" begin
+    @test isapprox(JudiLingMeasures.lwlr(res_learn, pred_df), [3. /0.993288, 3. /0.993152, 3. /0.993235], rtol=1e-4)
+end
 
-@test isapprox(JudiLingMeasures.path_sum_chat(res_learn, Chat), [sum(Chat[1,[1,2,3]]), sum(Chat[2,[4,5,6]]), sum(Chat[3,[7,8,9]])])
+@testset "PathSumChat" begin
+    @test isapprox(JudiLingMeasures.path_sum_chat(res_learn, Chat),
+                   [sum(Chat[1,[1,2,3]]), sum(Chat[2,[4,5,6]]), sum(Chat[3,[7,8,9]])])
+end
 
-@test isapprox(JudiLingMeasures.L1Norm(Chat), map(sum, eachrow(abs.(Chat))))
+@testset "C-Precision" begin
+    @test isapprox(JudiLingMeasures.c_precision(Chat, cue_obj.C), diag(JudiLing.eval_SC(Chat, cue_obj.C, R=true)[2]))
+    cor_c = JudiLingMeasures.correlation_rowwise(Chat, cue_obj.C)
+    @test isapprox(JudiLingMeasures.c_precision(Chat, cue_obj.C), JudiLingMeasures.target_correlation(cor_c))
+end
 
-@test isapprox(JudiLingMeasures.c_precision(Chat, cue_obj.C), diag(JudiLing.eval_SC(Chat, cue_obj.C, R=true)[2]))
+@testset "Semantic Support For Form" begin
+    @test isapprox(JudiLingMeasures.semantic_support_for_form(cue_obj, Chat), [sum(Chat[1,[1,2,3]]), sum(Chat[2,[4,5,6]]), sum(Chat[3,[7,8,9]])])
+    @test isapprox(JudiLingMeasures.semantic_support_for_form(cue_obj, Chat), JudiLingMeasures.path_sum_chat(res_learn, Chat))
+    @test isapprox(JudiLingMeasures.semantic_support_for_form(cue_obj, Chat, sum_supports=false), [Chat[1,[1,2,3]], Chat[2,[4,5,6]], Chat[3,[7,8,9]]] )
+end
 
-@test isapprox(JudiLingMeasures.semantic_support_for_form(cue_obj, Chat), [sum(Chat[1,[1,2,3]]), sum(Chat[2,[4,5,6]]), sum(Chat[3,[7,8,9]])])
+@testset "SCPP" begin
+    @test isapprox(JudiLingMeasures.SCPP(df, dat), JudiLingMeasures.NNC(cor_s_all))
+end
 
-@test isapprox(JudiLingMeasures.semantic_support_for_form(cue_obj, Chat), JudiLingMeasures.path_sum_chat(res_learn, Chat))
+@testset "MeanWordSupportChat" begin
+    @test isapprox(JudiLingMeasures.mean_word_support_chat(res_learn, Chat), [sum(Chat[1,[1,2,3]])/3, sum(Chat[2,[4,5,6]])/3, sum(Chat[3,[7,8,9]])/3])
+end
 
-@test isapprox(JudiLingMeasures.SCPP(df, dat), JudiLingMeasures.NNC(cor_s_all))
+@testset "lwlrChat" begin
+    @test isapprox(JudiLingMeasures.lwlr_chat(res_learn, Chat), [3. /findmin(Chat[1,[1,2,3]])[1], 3. /findmin(Chat[2,[4,5,6]])[1], 3. /findmin(Chat[3,[7,8,9]])[1]])
+end
 
-@test isapprox(JudiLingMeasures.mean_word_support_chat(res_learn, Chat), [sum(Chat[1,[1,2,3]])/3, sum(Chat[2,[4,5,6]])/3, sum(Chat[3,[7,8,9]])/3])
+@testset "Path Entropies Chat" begin
+    @test isapprox(JudiLingMeasures.path_entropies_chat(res_learn, Chat), [JudiLingMeasures.entropy([sum(Chat[1,[1,2,3]])]),
+                                                           JudiLingMeasures.entropy([sum(Chat[2,[4,5,6]])]),
+                                                           JudiLingMeasures.entropy([sum(Chat[3,[7,8,9]])])])
+end
 
-@test isapprox(JudiLingMeasures.lwlr_chat(res_learn, Chat), [3. /findmin(Chat[1,[1,2,3]])[1], 3. /findmin(Chat[2,[4,5,6]])[1], 3. /findmin(Chat[3,[7,8,9]])[1]])
+@testset "Target Path Sum" begin
+    @test isapprox(JudiLingMeasures.target_path_sum(gpi_learn), JudiLingMeasures.path_sum(pred_df))
+end
 
-@test isapprox(JudiLingMeasures.path_entropies_chat(res_learn, Chat), [JudiLingMeasures.entropy([sum(Chat[1,[1,2,3]])]),
-                                                       JudiLingMeasures.entropy([sum(Chat[2,[4,5,6]])]),
-                                                       JudiLingMeasures.entropy([sum(Chat[3,[7,8,9]])])])
+@testset "Path Entropies SCP" begin
+    @test JudiLingMeasures.path_entropies_scp(df) == vec([0. 0. 0.])
+end
 
-@test isapprox(JudiLingMeasures.target_path_sum(gpi_learn), JudiLingMeasures.path_sum(pred_df))
+@testset "Total Distance" begin
+    ngrams = cue_obj.gold_ind
+    distances = []
+    for ngram in ngrams
+        dist1 = Distances.Euclidean()(zeros(size(F,2), 1), F[ngram[1],:])
+        dist2 = Distances.Euclidean()(F[ngram[1],:], F[ngram[2],:])
+        dist3 = Distances.Euclidean()(F[ngram[2],:], F[ngram[3],:])
+        append!(distances, [dist1+dist2+dist3])
+    end
+    @test isapprox(JudiLingMeasures.total_distance(cue_obj, F, :F), distances)
 
-@test JudiLingMeasures.path_entropies_scp(df) == vec([0. 0. 0.])
+    ngrams = cue_obj.gold_ind
+    distances = []
+    for ngram in ngrams
+        dist1 = Distances.Euclidean()(zeros(size(G,1), 1), G[:,ngram[1]])
+        dist2 = Distances.Euclidean()(G[:,ngram[1]], G[:,ngram[2]])
+        dist3 = Distances.Euclidean()(G[:,ngram[2]], G[:,ngram[3]])
+        append!(distances, [dist1+dist2+dist3])
+    end
+    @test isapprox(JudiLingMeasures.total_distance(cue_obj, G, :G), distances)
+end
+
+@testset "Uncertainty" begin
+    cor_c = cor(Chat, cue_obj.C, dims=2)
+    cor_s = cor(Shat, S, dims=2)
+    @test isapprox(JudiLingMeasures.uncertainty(cue_obj.C, Chat), [sum(cor_c[1,:] .* sortperm(cor_c[1,:], rev=true)), sum(cor_c[2,:] .* sortperm(cor_c[2,:], rev=true)), sum(cor_c[3,:] .* sortperm(cor_c[3,:], rev=true))])
+    @test isapprox(JudiLingMeasures.uncertainty(S, Shat), [sum(cor_s[1,:] .* sortperm(cor_s[1,:], rev=true)), sum(cor_s[2,:] .* sortperm(cor_s[2,:], rev=true)), sum(cor_s[3,:] .* sortperm(cor_s[3,:], rev=true))])
+end
+
+@testset "Functional Load" begin
+    @test isapprox(JudiLingMeasures.functional_load(F, Shat, cue_obj), [cor(F, Shat, dims=2)[[1,2,3], 1], cor(F, Shat, dims=2)[[4,5,6], 2], cor(F, Shat, dims=2)[[7,8,9], 3]])
+end

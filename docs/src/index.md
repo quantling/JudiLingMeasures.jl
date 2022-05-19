@@ -95,6 +95,7 @@ all_measures = JudiLingMeasures.compute_all_measures(latin, # the data of intere
                                                      Chat, # the Chat of the data of interest
                                                      S, # the S matrix of the data of interest
                                                      Shat, # the Shat matrix of the data of interest
+                                                     F, # the F matrix
                                                      res_learn, # the output of learn_paths for the data of interest
                                                      gpi_learn, # the gpi_learn object of the data of interest
                                                      rpi_learn); # the rpi_learn object of the data of interest
@@ -114,7 +115,7 @@ all_measures = JudiLingMeasures.compute_all_measures(latin, # the data of intere
   JudiLingMeasures.L1Norm(Shat)
   ```
 
-  Used in Schmitz et al. (2021), Stein and Plag (2021) (called Semantic Vector length in their paper)
+  Used in Schmitz et al. (2021), Stein and Plag (2021) (called Semantic Vector length in their paper), Saito (2021) (called VecLen)
 
 - **L2Norm**
 
@@ -126,6 +127,7 @@ all_measures = JudiLingMeasures.compute_all_measures(latin, # the data of intere
   ```
 
   Used in Schmitz et al. (2021)
+
 
 #### Measures of semantic neighbourhood
 
@@ -179,7 +181,7 @@ all_measures = JudiLingMeasures.compute_all_measures(latin, # the data of intere
 
   Used in Schmitz et al. (2021), Chuang et al. (2020)
 
-#### Measures of comprehension accuracy
+#### Measures of comprehension accuracy/uncertainty
 
 - **TargetCorrelation**
 
@@ -191,7 +193,7 @@ all_measures = JudiLingMeasures.compute_all_measures(latin, # the data of intere
   JudiLingMeasures.TargetCorrelation(cor_s)
   ```
 
-  Used in Stein and Plag (2021)
+  Used in Stein and Plag (2021) and Saito (2021) (but called PredAcc there)
 
 - **Rank**
 
@@ -208,6 +210,28 @@ all_measures = JudiLingMeasures.compute_all_measures(latin, # the data of intere
   Whether a word form was correctly comprehended. Not currently implemented.
 
   NOT YET IMPLEMENTED
+
+- **Comprehension Uncertainty**
+
+  Sum of production of correlation of shat with all vectors in S and the ranks of this correlation.
+
+  Example:
+  ```
+  CompU = JudiLingMeasures.uncertainty(S, Shat)
+  ```
+
+  Used in Saito (2021).
+
+- **Functional Load**
+
+  Correlation of rows in F of triphones in word w and the target semantic vector of w.
+
+  Example:
+  ```
+  FuncLoad = JudiLingMeasures.functional_load(F, Shat, cue_obj)
+  ```
+
+  Used in Saito (2021).
 
 #### Measures of production accuracy/support/uncertainty for the predicted form
 
@@ -285,7 +309,26 @@ all_measures = JudiLingMeasures.compute_all_measures(latin, # the data of intere
   JudiLingMeasures.semantic_support_for_form(cue_obj, Chat)
   ```
 
+  Instead of summing the activations, the function can also return the activation for each ngram:
+  ```
+  JudiLingMeasures.semantic_support_for_form(cue_obj, Chat, sum_supports=false)
+  ```
+
   Used in Gahl and Baayen (2022) (unclear which package this was based on?)
+  The activation of individual ngrams was used in Saito (2021).
+
+#### Measures of production accuracy/support/uncertainty for the target form
+
+- **Production Uncertainty**
+
+  Sum of production of correlation of chat with all vectors in C and the ranks of this correlation.
+
+  Example:
+  ```
+  ProdU = JudiLingMeasures.uncertainty(cue_obj.C, Chat)
+  ```
+
+  Used in Saito (2021)
 
 
 #### Measures of support for the predicted path, focusing on the path transitions and components of the path

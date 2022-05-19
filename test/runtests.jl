@@ -6,6 +6,7 @@ using JudiLing
 using LinearAlgebra
 using Statistics
 using Test
+using Distances
 
 # Test scripts
 include("test_helpers.jl")

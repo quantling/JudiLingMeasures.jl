@@ -214,7 +214,6 @@ julia> entropy(ps)
 """
 function entropy(ps::Union{Missing, Array, SubArray})
     if (!any(ismissing.(ps)) && length(ps) > 0)
-        #ps = ps[Not(ismissing.(ps))]
         ps = ps[ps.>0]
         p = ps./sum(ps)
         -sum(p.*log2.(p))
@@ -548,6 +547,7 @@ function compute_all_measures(data_val::DataFrame,
                               Chat_val::Union{JudiLing.SparseMatrixCSC, Matrix},
                               S_val::Union{JudiLing.SparseMatrixCSC, Matrix},
                               Shat_val::Union{JudiLing.SparseMatrixCSC, Matrix},
+                              F_train::Union{JudiLing.SparseMatrixCSC, Matrix},
                               res_learn::Array{Array{JudiLing.Result_Path_Info_Struct,1},1},
                               gpi_learn::Array{JudiLing.Gold_Path_Info_Struct,1},
                               rpi_learn::Array{JudiLing.Gold_Path_Info_Struct,1})
@@ -587,6 +587,7 @@ function compute_all_measures(data_val::DataFrame,
     results[!,"C-Precision"] = c_precision(Chat_val, cue_obj_val.C)
     results[!,"L1Chat"] = L1Norm(Chat_val)
     results[!,"SemanticSupportForForm"] = semantic_support_for_form(cue_obj_val, Chat_val)
+    results[!,"DistanceTravelled"] = total_distance(cue_obj_val, F_train)
 
     # support for the predicted path, focusing on the path transitions and components of the path
     results[!,"WithinPathEntropies"] = within_path_entropies(pred_df)
@@ -604,4 +605,12 @@ function compute_all_measures(data_val::DataFrame,
 
 
     results
+end
+
+function safe_divide(x, y)
+    if y != 0
+        x/y
+    else
+        missing
+    end
 end
