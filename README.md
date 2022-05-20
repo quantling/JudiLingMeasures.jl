@@ -1,5 +1,8 @@
 # JudiLingMeasures.jl
 
+[![Dev](https://img.shields.io/badge/docs-dev-blue.svg)](https://MariaHei.github.io/JudiLingMeasures.jl/dev)
+[![Build Status](https://github.com/MariaHei/JudiLingMeasures.jl/workflows/CI/badge.svg)](https://github.com/MariaHei/JudiLingMeasures.jl/actions)
+
 You can find the documentation [here](https://mariahei.github.io/JudiLingMeasures.jl/dev/index.html).
 
 PLEASE NOTE THAT THIS PACKAGE IS WORK IN PROGRESS. MAJOR CHANGES TO THE CODE ARE POSSIBLE AT ANY POINT AND NEW MEASURES ARE STILL BEING ADDED.
