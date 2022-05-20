@@ -7,7 +7,14 @@ You can find the documentation [here](https://mariahei.github.io/JudiLingMeasure
 
 PLEASE NOTE THAT THIS PACKAGE IS WORK IN PROGRESS. MAJOR CHANGES TO THE CODE ARE POSSIBLE AT ANY POINT AND NEW MEASURES ARE STILL BEING ADDED.
 
-Requires JudiLing 0.5.5. Update your JudiLing version by running
+## Installation
+
+```
+using Pkg
+Pkg.add("https://github.com/MariaHei/JudiLingMeasures.jl")
+```
+
+Note: Requires JudiLing 0.5.5. Update your JudiLing version by running
 
 ```
 using Pkg
