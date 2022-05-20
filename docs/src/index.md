@@ -18,7 +18,7 @@ For a demo of this package, please see `notebooks/measures_demo.ipynb`.
 
 ## Calculating measures in this package
 
-The following gives an overview over all measures available in this package. For a closer description of the parameters, please refer to [Measures documentation](https://mariahei.github.io/JudiLingMeasures.jl/dev/measures.html). All measures come with examples. In order to run them, first run the following piece of code, taken from the [Readme of the JudiLing package](https://github.com/MegamindHenry/JudiLing.jl). For a detailed explanation of this code please refer to the [JudiLing Readme](https://github.com/MegamindHenry/JudiLing.jl) and [documentation](https://megamindhenry.github.io/JudiLing.jl/stable/).
+The following gives an overview over all measures available in this package. For a closer description of the parameters, please refer to [Measures](@ref). All measures come with examples. In order to run them, first run the following piece of code, taken from the [Readme of the JudiLing package](https://github.com/MegamindHenry/JudiLing.jl). For a detailed explanation of this code please refer to the [JudiLing Readme](https://github.com/MegamindHenry/JudiLing.jl) and [documentation](https://megamindhenry.github.io/JudiLing.jl/stable/).
 
 ```
 using JudiLing
