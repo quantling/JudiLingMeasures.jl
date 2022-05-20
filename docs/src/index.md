@@ -181,6 +181,16 @@ all_measures = JudiLingMeasures.compute_all_measures(latin, # the data of intere
 
   Used in Schmitz et al. (2021), Chuang et al. (2020)
 
+- **Total Distance (F)**
+
+  Summed Euclidean distances between predicted semantic vectors of trigrams in the target form.
+  Code by Yu-Ying Chuang.
+
+  Example:
+  ```
+  JudiLingMeasures.total_distance(cue_obj, F, :F)
+  ```
+
 #### Measures of comprehension accuracy/uncertainty
 
 - **TargetCorrelation**
@@ -217,7 +227,7 @@ all_measures = JudiLingMeasures.compute_all_measures(latin, # the data of intere
 
   Example:
   ```
-  CompU = JudiLingMeasures.uncertainty(S, Shat)
+  JudiLingMeasures.uncertainty(S, Shat)
   ```
 
   Used in Saito (2021).
@@ -228,10 +238,12 @@ all_measures = JudiLingMeasures.compute_all_measures(latin, # the data of intere
 
   Example:
   ```
-  FuncLoad = JudiLingMeasures.functional_load(F, Shat, cue_obj)
+  JudiLingMeasures.functional_load(F, Shat, cue_obj)
   ```
 
   Used in Saito (2021).
+
+### Measures capturing production (processing on the form side of the network)
 
 #### Measures of production accuracy/support/uncertainty for the predicted form
 
@@ -325,11 +337,20 @@ all_measures = JudiLingMeasures.compute_all_measures(latin, # the data of intere
 
   Example:
   ```
-  ProdU = JudiLingMeasures.uncertainty(cue_obj.C, Chat)
+  JudiLingMeasures.uncertainty(cue_obj.C, Chat)
   ```
 
   Used in Saito (2021)
 
+- **Total Distance (G)**
+
+  Summed Euclidean distances between predicted form vectors of trigrams in the target form.
+  Code by Yu-Ying Chuang.
+
+  Example:
+  ```
+  JudiLingMeasures.total_distance(cue_obj, G, :G)
+  ```
 
 #### Measures of support for the predicted path, focusing on the path transitions and components of the path
 
