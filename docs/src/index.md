@@ -86,7 +86,7 @@ res_learn, gpi_learn, rpi_learn = JudiLingMeasures.learn_paths_rpi(
 );
 ```
 
-All available measures can be simply computed with
+Almost all available measures can be simply computed with
 
 ```
 all_measures = JudiLingMeasures.compute_all_measures(latin, # the data of interest
@@ -100,6 +100,10 @@ all_measures = JudiLingMeasures.compute_all_measures(latin, # the data of intere
                                                      gpi_learn, # the gpi_learn object of the data of interest
                                                      rpi_learn); # the rpi_learn object of the data of interest
 ```
+
+The only measures not computed in `JudiLingMeasures.compute_all_measures` are those which return multiple values for each wordform. These are
+- "Functional Load"
+- "Semantic Support for Form" with `sum_supports=false`
 
 ## Overview over all available measures
 
