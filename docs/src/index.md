@@ -1,7 +1,16 @@
 # JudiLingMeasures.jl
 
 
-This is code for JudiLingMeasures.
+This is code for JudiLingMeasures. Most measures are based on R implementations in WpmWithLdl (Baayen et al., 2018) and [LdlConvFunctions](https://github.com/dosc91/LDLConvFunctions) (Schmitz, 2021) (but all errors are my own). The conceptual work behind this package is therefore very much an effort of many people (see [References](@ref)). I have tried to acknowledge where each measure is used/introduced, but if I have missed anything, or you find any errors please let me know: maria dot heitmeier at uni dot tuebingen dot de.
+
+PLEASE NOTE THAT THIS PACKAGE IS WORK IN PROGRESS. MAJOR CHANGES TO THE CODE ARE POSSIBLE AT ANY POINT AND NEW MEASURES ARE STILL BEING ADDED.
+
+## Installation
+
+```
+using Pkg
+Pkg.add("https://github.com/MariaHei/JudiLingMeasures.jl")
+```
 
 Requires JudiLing 0.5.5. Update your JudiLing version by running
 
@@ -196,6 +205,8 @@ The only measures not computed in `JudiLingMeasures.compute_all_measures` are th
   JudiLingMeasures.total_distance(cue_obj, F, :F)
   ```
 
+  Used in Chuang et al. (to appear)
+
 #### Measures of comprehension accuracy/uncertainty
 
 - **TargetCorrelation**
@@ -375,6 +386,8 @@ The only measures not computed in `JudiLingMeasures.compute_all_measures` are th
   JudiLingMeasures.total_distance(cue_obj, G, :G)
   ```
 
+  Used in Chuang et al. (to appear)
+
 #### Measures of support for the predicted path, focusing on the path transitions and components of the path
 
 - **LastSupport**
@@ -484,3 +497,19 @@ The only measures not computed in `JudiLingMeasures.compute_all_measures` are th
   ```
 
   Used in Schmitz et al. (2021), Chuang et al. (2020) (both based on WpmWithLDL)
+
+## Bibliography
+
+Baayen, R. H., Chuang, Y. Y., and Blevins, J. P. (2018). Inflectional morphology with linear mappings. The Mental Lexicon, 13 (2), 232-270.
+
+Chuang, Y. Y., Kang, M., Luo, X. F. and Baayen, R. H. (to appear). Vector Space Morphology with Linear Discriminative Learning. In Crepaldi, D. (Ed.) Linguistic morphology in the mind and brain.
+
+Chuang, Y-Y., Vollmer, M-l., Shafaei-Bajestan, E., Gahl, S., Hendrix, P., and Baayen, R. H. (2020). The processing of pseudoword form and meaning in production and comprehension: A computational modeling approach using Linear Discriminative Learning. Behavior Research Methods, 1-51.
+
+Gahl, S., and Baayen, R. H. (2022). Time and thyme again: Connecting spoken word duration to models of the mental lexicon. OSF, January 22, 1-41.
+
+Schmitz, Dominic. (2021). LDLConvFunctions: Functions for measure computation, extraction, and other handy stuff. R package version 1.2.0.1. URL: https://github.com/dosc91/LDLConvFunctions
+
+Schmitz, D., Plag, I., Baer-Henney, D., & Stein, S. D. (2021). Durational differences of word-final/s/emerge from the lexicon: Modelling morpho-phonetic effects in pseudowords with linear discriminative learning. Frontiers in psychology, 12.
+
+Stein, S. D., & Plag, I. (2021). Morpho-phonetic effects in speech production: Modeling the acoustic duration of English derived words with linear discriminative learning. Frontiers in Psychology, 12.
