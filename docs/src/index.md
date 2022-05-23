@@ -1,7 +1,7 @@
 # JudiLingMeasures.jl
 
 
-This is code for JudiLingMeasures. Most measures are based on R implementations in WpmWithLdl (Baayen et al., 2018) and [LdlConvFunctions](https://github.com/dosc91/LDLConvFunctions) (Schmitz, 2021) (but all errors are my own). The conceptual work behind this package is therefore very much an effort of many people (see [References](@ref)). I have tried to acknowledge where each measure is used/introduced, but if I have missed anything, or you find any errors please let me know: maria dot heitmeier at uni dot tuebingen dot de.
+This is code for JudiLingMeasures. Most measures are based on R implementations in WpmWithLdl (Baayen et al., 2018) and [LdlConvFunctions](https://github.com/dosc91/LDLConvFunctions) (Schmitz, 2021) and the python implementation in (pyldl)[https://github.com/msaito8623/pyldl] (Saito, 2022) (but all errors are my own). The conceptual work behind this package is therefore very much an effort of many people (see [References](@ref)). I have tried to acknowledge where each measure is used/introduced, but if I have missed anything, or you find any errors please let me know: maria dot heitmeier at uni dot tuebingen dot de.
 
 PLEASE NOTE THAT THIS PACKAGE IS WORK IN PROGRESS. MAJOR CHANGES TO THE CODE ARE POSSIBLE AT ANY POINT AND NEW MEASURES ARE STILL BEING ADDED.
 
@@ -129,7 +129,7 @@ The only measures not computed in `JudiLingMeasures.compute_all_measures` are th
   JudiLingMeasures.L1Norm(Shat)
   ```
 
-  Used in Schmitz et al. (2021), Stein and Plag (2021) (called Semantic Vector length in their paper), Saito (2021) (called VecLen)
+  Used in Schmitz et al. (2021), Stein and Plag (2021) (called Semantic Vector length in their paper), Saito (2022) (called VecLen)
 
 - **L2Norm**
 
@@ -219,7 +219,7 @@ The only measures not computed in `JudiLingMeasures.compute_all_measures` are th
   JudiLingMeasures.TargetCorrelation(cor_s)
   ```
 
-  Used in Stein and Plag (2021) and Saito (2021) (but called PredAcc there)
+  Used in Stein and Plag (2021) and Saito (2022) (but called PredAcc there)
 
 - **Rank**
 
@@ -250,7 +250,7 @@ The only measures not computed in `JudiLingMeasures.compute_all_measures` are th
   JudiLingMeasures.uncertainty(S, Shat, method="cosine")
   ```
 
-  Used in Saito (2021).
+  Used in Saito (2022).
 
 - **Functional Load**
 
@@ -271,7 +271,7 @@ The only measures not computed in `JudiLingMeasures.compute_all_measures` are th
   JudiLingMeasures.functional_load(F[:,1:6], Shat[1:6,:], cue_obj, cue_list = ["#vo", "#vo", "#vo","#vo","#vo","#vo"], method="mse")
   ```
 
-  Used in Saito (2021).
+  Used in Saito (2022).
 
 ### Measures capturing production (processing on the form side of the network)
 
@@ -357,7 +357,7 @@ The only measures not computed in `JudiLingMeasures.compute_all_measures` are th
   ```
 
   Used in Gahl and Baayen (2022) (unclear which package this was based on?)
-  The activation of individual ngrams was used in Saito (2021).
+  The activation of individual ngrams was used in Saito (2022).
 
 #### Measures of production accuracy/support/uncertainty for the target form
 
@@ -374,7 +374,7 @@ The only measures not computed in `JudiLingMeasures.compute_all_measures` are th
   JudiLingMeasures.uncertainty(cue_obj.C, Chat, method="cosine")
   ```
 
-  Used in Saito (2021)
+  Used in Saito (2022)
 
 - **Total Distance (G)**
 
@@ -507,6 +507,8 @@ Chuang, Y. Y., Kang, M., Luo, X. F. and Baayen, R. H. (to appear). Vector Space 
 Chuang, Y-Y., Vollmer, M-l., Shafaei-Bajestan, E., Gahl, S., Hendrix, P., and Baayen, R. H. (2020). The processing of pseudoword form and meaning in production and comprehension: A computational modeling approach using Linear Discriminative Learning. Behavior Research Methods, 1-51.
 
 Gahl, S., and Baayen, R. H. (2022). Time and thyme again: Connecting spoken word duration to models of the mental lexicon. OSF, January 22, 1-41.
+
+Saito, Motoki (2022): pyldl - Linear Discriminative Learning in Python. URL: https://github.com/msaito8623/pyldl
 
 Schmitz, Dominic. (2021). LDLConvFunctions: Functions for measure computation, extraction, and other handy stuff. R package version 1.2.0.1. URL: https://github.com/dosc91/LDLConvFunctions
 

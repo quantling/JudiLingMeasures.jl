@@ -3,7 +3,7 @@
 [![Dev](https://img.shields.io/badge/docs-dev-blue.svg)](https://MariaHei.github.io/JudiLingMeasures.jl/dev)
 [![Build Status](https://github.com/MariaHei/JudiLingMeasures.jl/workflows/CI/badge.svg)](https://github.com/MariaHei/JudiLingMeasures.jl/actions)
 
-This is code for JudiLingMeasures. Most measures are based on R implementations in WpmWithLdl (Baayen et al., 2018) and [LdlConvFunctions](https://github.com/dosc91/LDLConvFunctions) (Schmitz, 2021) (but all errors are my own). The conceptual work behind this package is therefore very much an effort of many people (see [References](https://mariahei.github.io/JudiLingMeasures.jl/dev/index.html#References)). I have tried to acknowledge where each measure is used/introduced, but if I have missed anything, or you find any errors please let me know: maria dot heitmeier at uni dot tuebingen dot de.
+This is code for JudiLingMeasures. Most measures are based on R implementations in WpmWithLdl (Baayen et al., 2018) and [LdlConvFunctions](https://github.com/dosc91/LDLConvFunctions) (Schmitz, 2021) and the python implementation in (pyldl)[https://github.com/msaito8623/pyldl] (Saito, 2022) (but all errors are my own). The conceptual work behind this package is therefore very much an effort of many people (see [References](https://mariahei.github.io/JudiLingMeasures.jl/dev/index.html#References)). I have tried to acknowledge where each measure is used/introduced, but if I have missed anything, or you find any errors please let me know: maria dot heitmeier at uni dot tuebingen dot de.
 
 You can find the documentation [here](https://mariahei.github.io/JudiLingMeasures.jl/dev/index.html).
 
