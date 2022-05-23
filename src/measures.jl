@@ -146,11 +146,13 @@ end
 
 """
     semantic_support_for_form(cue_obj::JudiLing.Cue_Matrix_Struct,
-                 Chat::Union{JudiLing.SparseMatrixCSC, Matrix})
+                 Chat::Union{JudiLing.SparseMatrixCSC, Matrix};
+                 sum_supports::Bool=true)
 Return the support in `Chat` for all target ngrams of each target word.
 """
 function semantic_support_for_form(cue_obj::JudiLing.Cue_Matrix_Struct,
-                      Chat::Union{JudiLing.SparseMatrixCSC, Matrix}; sum_supports=true)
+                      Chat::Union{JudiLing.SparseMatrixCSC, Matrix};
+                      sum_supports::Bool=true)
     ngrams = cue_obj.gold_ind
     support = []
     for (index, n) in enumerate(ngrams)
@@ -467,29 +469,123 @@ end
 
 """
     function uncertainty(SC::Union{JudiLing.SparseMatrixCSC, Matrix},
-                         SChat::Union{JudiLing.SparseMatrixCSC, Matrix})
+                         SChat::Union{JudiLing.SparseMatrixCSC, Matrix};
+                         method::Union{String, Symbol} = "corr")
+Sum of correlation/mse/cosine similarity of SChat with all vectors in SC and the ranks of this correlation/mse/cosine similarity.
 
-Measure developed by Motoki Saito.
+Measure developed by Motoki Saito. Note: the current version of uncertainty is not completely tested against its original implementation in [pyldl](https://github.com/msaito8623/pyldl).
+
+# Arguments
+- SC::Union{JudiLing.SparseMatrixCSC, Matrix}: S or C matrix of the data of interest
+- SChat::Union{JudiLing.SparseMatrixCSC, Matrix}: Shat or Chat matrix of the data of interest
+- method::Union{String, Symbol} = "corr": Method to compute similarity
+
+# Examples
+```jldoctest
+julia> Shat = [[1 2 1 1]; [1 -2 3 1]; [1 -2 3 3]; [0 0 1 2]]
+julia> S = [[-1 2 1 1]; [1 2 3 1]; [1 2 0 1]; [0.5 -2 1.5 0]]
+julia> JudiLingMeasures.uncertainty(S, Shat, method="corr") # default
+4-element Vector{Float64}:
+ 5.3583589101779605
+ 5.45682093125373
+ 5.330660086961848
+ 6.675366532252984
+julia> JudiLingMeasures.uncertainty(S, Shat, method="mse")
+4-element Vector{Float64}:
+ 3.909090909090909
+ 5.44186046511628
+ 5.314285714285714
+ 5.375
+julia> JudiLingMeasures.uncertainty(S, Shat, method="cosine")
+4-element Vector{Float64}:
+ 5.4030832120059165
+ 4.610897476199016
+ 4.744838560168514
+ 3.526925997296189
+```
 """
 function uncertainty(SC::Union{JudiLing.SparseMatrixCSC, Matrix},
-                     SChat::Union{JudiLing.SparseMatrixCSC, Matrix})
-    cor_sc = JudiLingMeasures.correlation_rowwise(SChat, SC)
+                     SChat::Union{JudiLing.SparseMatrixCSC, Matrix};
+                     method::Union{String, Symbol} = "corr")
+    if method == "corr"
+        cor_sc = correlation_rowwise(SChat, SC)
+    elseif method == "mse"
+        cor_sc = mse_rowwise(SChat, SC)
+    elseif method == "cosine"
+        cor_sc = cosine_similarity(SChat, SC)
+    end
+    cor_sc = normalise_matrix_rowwise(cor_sc)
     ranks = mapreduce(permutedims, vcat, map(x -> sortperm(x, rev=true), eachrow(cor_sc)))
-    sum(cor_sc .* ranks, dims=2)
+    vec(sum(cor_sc .* ranks, dims=2))
 end
 
 """
     function functional_load(F::Union{JudiLing.SparseMatrixCSC, Matrix},
                              Shat::Union{JudiLing.SparseMatrixCSC, Matrix},
-                             cue_obj::JudiLing.Cue_Matrix_Struct)
-Measure developed by Motoki Saito.
+                             cue_obj::JudiLing.Cue_Matrix_Struct;
+                             cue_list::Union{Vector{String}, Missing}=missing,
+                             method::Union{String, Symbol}="corr")
+Correlation/MSE of rows in F of triphones in word w and semantic vector of w.
+
+Measure developed by Motoki Saito. Note: the current version of Functional Load is not completely tested against its original implementation in [pyldl](https://github.com/msaito8623/pyldl).
+
+# Arguments
+- F::Union{JudiLing.SparseMatrixCSC, Matrix}: The comprehension matrix F
+- Shat::Union{JudiLing.SparseMatrixCSC, Matrix}: The predicted semantic matrix of the data of interest
+- cue_obj::JudiLing.Cue_Matrix_Struct: The cue object of the data of interest.
+- cue_list::Union{Vector{String}, Missing}=missing: List of cues for which functional load should be computed. Each cue in the list corresponds to one word in Shat/cue_obj and cue and corresponding words have to be in the same order.
+- method::Union{String, Symbol}="corr": If "corr", correlation between row in F and semantic vector in S is computed. If "mse", mean squared error is used.
+
+# Example
+```jldoctest
+julia> using JudiLing, DataFrames
+julia> dat = DataFrame("Word"=>["abc", "bcd", "cde"]);
+julia> cue_obj = JudiLing.make_cue_matrix(dat, grams=3, target_col=:Word);
+julia> n_features = size(cue_obj.C, 2);
+julia> S = JudiLing.make_S_matrix(
+    dat,
+    ["Word"],
+    [],
+    ncol=n_features);
+julia> F = JudiLing.make_transform_matrix(cue_obj.C, S);
+julia> Shat = cue_obj.C * F;
+julia> JudiLingMeasures.functional_load(F, Shat, cue_obj)
+3-element Vector{Any}:
+ [1.0, 1.0, 1.0]
+ [0.9999999999999999, 1.0, 1.0]
+ [0.9999999999999998, 0.9999999999999998, 1.0]
+julia> JudiLingMeasures.functional_load(F, Shat, cue_obj, cue_list=["#ab", "#bc", "#cd"])
+3-element Vector{Any}:
+ 1.0
+ 0.9999999999999999
+ 0.9999999999999998
+julia> JudiLingMeasures.functional_load(F, Shat, cue_obj, cue_list=["#ab", "#bc", "#cd"], method="mse")
+3-element Vector{Any}:
+ 13.929885322944285
+  5.26127506129032
+ 10.371443574053322
+julia> JudiLingMeasures.functional_load(F, Shat, cue_obj, method="mse")
+3-element Vector{Any}:
+ [13.929885322944285, 13.929885322944251, 13.929885322944255]
+ [5.26127506129032, 5.261275061290302, 5.261275061290303]
+ [10.371443574053322, 10.371443574053368, 10.371443574053368]
+```
 """
 function functional_load(F::Union{JudiLing.SparseMatrixCSC, Matrix},
                          Shat::Union{JudiLing.SparseMatrixCSC, Matrix},
-                         cue_obj::JudiLing.Cue_Matrix_Struct)
-
-     ngrams = cue_obj.gold_ind
-     cor_fs = JudiLingMeasures.correlation_rowwise(F, Shat)
+                         cue_obj::JudiLing.Cue_Matrix_Struct;
+                         cue_list::Union{Vector{String}, Missing}=missing,
+                         method::Union{String, Symbol}="corr")
+    if ismissing(cue_list)
+         ngrams = cue_obj.gold_ind
+    else
+        ngrams = [cue_obj.f2i[cue] for cue in cue_list]
+    end
+    if method == "corr"
+        cor_fs = JudiLingMeasures.correlation_rowwise(F, Shat)
+    elseif method == "mse"
+        cor_fs = JudiLingMeasures.mse_rowwise(F, Shat)
+    end
      functional_loads = []
      for (index, n) in enumerate(ngrams)
          s = cor_fs[n, index]

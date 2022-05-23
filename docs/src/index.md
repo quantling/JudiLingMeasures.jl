@@ -96,6 +96,7 @@ all_measures = JudiLingMeasures.compute_all_measures(latin, # the data of intere
                                                      S, # the S matrix of the data of interest
                                                      Shat, # the Shat matrix of the data of interest
                                                      F, # the F matrix
+                                                     G, # the G matrix
                                                      res_learn, # the output of learn_paths for the data of interest
                                                      gpi_learn, # the gpi_learn object of the data of interest
                                                      rpi_learn); # the rpi_learn object of the data of interest
@@ -227,22 +228,36 @@ The only measures not computed in `JudiLingMeasures.compute_all_measures` are th
 
 - **Comprehension Uncertainty**
 
-  Sum of production of correlation of shat with all vectors in S and the ranks of this correlation.
+  Sum of production of correlation/mse/cosine cosimilarity of shat with all vectors in S and the ranks of this correlation/mse/cosine similarity.
+
+  Note: the current version of Comprehension Uncertainty is not completely tested against its original implementation in [pyldl](https://github.com/msaito8623/pyldl).
 
   Example:
   ```
-  JudiLingMeasures.uncertainty(S, Shat)
+  JudiLingMeasures.uncertainty(S, Shat, method="corr") # default
+  JudiLingMeasures.uncertainty(S, Shat, method="mse")
+  JudiLingMeasures.uncertainty(S, Shat, method="cosine")
   ```
 
   Used in Saito (2021).
 
 - **Functional Load**
 
-  Correlation of rows in F of triphones in word w and the target semantic vector of w.
+  Correlation/MSE of rows in F of triphones in word w and the target semantic vector of w.
+
+  Note: the current version of Functional Load is not completely tested against its original implementation in [pyldl](https://github.com/msaito8623/pyldl).
 
   Example:
   ```
-  JudiLingMeasures.functional_load(F, Shat, cue_obj)
+  JudiLingMeasures.functional_load(F, Shat, cue_obj, method="corr")
+  JudiLingMeasures.functional_load(F, Shat, cue_obj, method="mse")
+  ```
+
+  Instead of returning the functional load for each cue in each word, a list of cues can also be specified. In this case it is assumed that cues are specified in the same order as the words they are to be compared to are specified in F and Shat.
+
+  ```
+  JudiLingMeasures.functional_load(F[:,1:6], Shat[1:6,:], cue_obj, cue_list = ["#vo", "#vo", "#vo","#vo","#vo","#vo"])
+  JudiLingMeasures.functional_load(F[:,1:6], Shat[1:6,:], cue_obj, cue_list = ["#vo", "#vo", "#vo","#vo","#vo","#vo"], method="mse")
   ```
 
   Used in Saito (2021).
@@ -337,11 +352,15 @@ The only measures not computed in `JudiLingMeasures.compute_all_measures` are th
 
 - **Production Uncertainty**
 
-  Sum of production of correlation of chat with all vectors in C and the ranks of this correlation.
+  Sum of production of correlation/mse/cosine similarity of chat with all vectors in C and the ranks of this correlation/mse/cosine similarity.
+
+  Note: the current version of Production Uncertainty is not completely tested against its original implementation in [pyldl](https://github.com/msaito8623/pyldl).
 
   Example:
   ```
-  JudiLingMeasures.uncertainty(cue_obj.C, Chat)
+  JudiLingMeasures.uncertainty(cue_obj.C, Chat, method="corr") # default
+  JudiLingMeasures.uncertainty(cue_obj.C, Chat, method="mse")
+  JudiLingMeasures.uncertainty(cue_obj.C, Chat, method="cosine")
   ```
 
   Used in Saito (2021)

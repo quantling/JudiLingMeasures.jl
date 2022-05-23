@@ -235,12 +235,66 @@ end
 end
 
 @testset "Uncertainty" begin
-    cor_c = cor(Chat, cue_obj.C, dims=2)
-    cor_s = cor(Shat, S, dims=2)
-    @test isapprox(JudiLingMeasures.uncertainty(cue_obj.C, Chat), [sum(cor_c[1,:] .* sortperm(cor_c[1,:], rev=true)), sum(cor_c[2,:] .* sortperm(cor_c[2,:], rev=true)), sum(cor_c[3,:] .* sortperm(cor_c[3,:], rev=true))])
-    @test isapprox(JudiLingMeasures.uncertainty(S, Shat), [sum(cor_s[1,:] .* sortperm(cor_s[1,:], rev=true)), sum(cor_s[2,:] .* sortperm(cor_s[2,:], rev=true)), sum(cor_s[3,:] .* sortperm(cor_s[3,:], rev=true))])
+    @testset "correlation" begin
+    cor_c = JudiLingMeasures.correlation_rowwise(Chat, cue_obj.C)
+    cor_s = JudiLingMeasures.correlation_rowwise(Shat, S)
+    @test isapprox(JudiLingMeasures.uncertainty(cue_obj.C, Chat),
+                   [sum(JudiLingMeasures.normalise_vector(cor_c[1,:]) .* sortperm(cor_c[1,:], rev=true)),
+                    sum(JudiLingMeasures.normalise_vector(cor_c[2,:]) .* sortperm(cor_c[2,:], rev=true)),
+                    sum(JudiLingMeasures.normalise_vector(cor_c[3,:]) .* sortperm(cor_c[3,:], rev=true))])
+    @test isapprox(JudiLingMeasures.uncertainty(S, Shat),
+                   [sum(JudiLingMeasures.normalise_vector(cor_s[1,:]) .* sortperm(cor_s[1,:], rev=true)),
+                    sum(JudiLingMeasures.normalise_vector(cor_s[2,:]) .* sortperm(cor_s[2,:], rev=true)),
+                    sum(JudiLingMeasures.normalise_vector(cor_s[3,:]) .* sortperm(cor_s[3,:], rev=true))])
+    end
+    @testset "mse" begin
+        mse_c = JudiLingMeasures.mse_rowwise(Chat, cue_obj.C)
+        @test isapprox(JudiLingMeasures.uncertainty(cue_obj.C, Chat, method="mse"),
+                       [sum(JudiLingMeasures.normalise_vector(mse_c[1,:]) .* sortperm(mse_c[1,:], rev=true)),
+                        sum(JudiLingMeasures.normalise_vector(mse_c[2,:]) .* sortperm(mse_c[2,:], rev=true)),
+                        sum(JudiLingMeasures.normalise_vector(mse_c[3,:]) .* sortperm(mse_c[3,:], rev=true))])
+
+    end
+    @testset "cosine" begin
+        cosine_c = JudiLingMeasures.cosine_similarity(Chat, cue_obj.C)
+        @test isapprox(JudiLingMeasures.uncertainty(cue_obj.C, Chat, method="cosine"),
+                       [sum(JudiLingMeasures.normalise_vector(cosine_c[1,:]) .* sortperm(cosine_c[1,:], rev=true)),
+                        sum(JudiLingMeasures.normalise_vector(cosine_c[2,:]) .* sortperm(cosine_c[2,:], rev=true)),
+                        sum(JudiLingMeasures.normalise_vector(cosine_c[3,:]) .* sortperm(cosine_c[3,:], rev=true))])
+    end
 end
 
 @testset "Functional Load" begin
-    @test isapprox(JudiLingMeasures.functional_load(F, Shat, cue_obj), [cor(F, Shat, dims=2)[[1,2,3], 1], cor(F, Shat, dims=2)[[4,5,6], 2], cor(F, Shat, dims=2)[[7,8,9], 3]])
+    @test isapprox(JudiLingMeasures.functional_load(F, Shat, cue_obj),
+                   [cor(F, Shat, dims=2)[[1,2,3], 1],
+                    cor(F, Shat, dims=2)[[4,5,6], 2],
+                    cor(F, Shat, dims=2)[[7,8,9], 3]])
+    @test isapprox(JudiLingMeasures.functional_load(F, Shat, cue_obj, cue_list=["#ab", "#bc", "#cd"]),
+                   [cor(F, Shat, dims=2)[1, 1],
+                    cor(F, Shat, dims=2)[4, 2],
+                    cor(F, Shat, dims=2)[7, 3]])
+    @test isapprox(JudiLingMeasures.functional_load(F, Shat, cue_obj, cue_list=["#ab", "#bc", "#cd"], method="mse"),
+                   [JudiLingMeasures.mse_rowwise(F, Shat)[1, 1],
+                    JudiLingMeasures.mse_rowwise(F, Shat)[4, 2],
+                    JudiLingMeasures.mse_rowwise(F, Shat)[7, 3]])
+    @test isapprox(JudiLingMeasures.functional_load(F, Shat, cue_obj, method="mse"),
+                   [JudiLingMeasures.mse_rowwise(F, Shat)[[1,2,3], 1],
+                    JudiLingMeasures.mse_rowwise(F, Shat)[[4,5,6], 2],
+                    JudiLingMeasures.mse_rowwise(F, Shat)[[7,8,9], 3]])
+end
+
+@testset "All measures" begin
+    # just make sure that this function runs without error
+    @test JudiLingMeasures.compute_all_measures(dat, # the data of interest
+                                                         cue_obj, # the cue_obj of the training data
+                                                         cue_obj, # the cue_obj of the data of interest
+                                                         Chat, # the Chat of the data of interest
+                                                         S, # the S matrix of the data of interest
+                                                         Shat, # the Shat matrix of the data of interest
+                                                         F, # the F matrix
+                                                         G,
+                                                         res_learn, # the output of learn_paths for the data of interest
+                                                         gpi_learn, # the gpi_learn object of the data of interest
+                                                         rpi_learn,# the rpi_learn object of the data of interest
+                                                         sem_density_n=2) != 1
 end

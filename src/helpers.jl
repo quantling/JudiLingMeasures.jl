@@ -77,7 +77,7 @@ julia> sem_density_mean(cor_s, 2)
 function sem_density_mean(s_cor::Union{JudiLing.SparseMatrixCSC, Matrix},
                           n::Int)
     if n > size(s_cor,2)
-        throw(MethodError(n, "n larger than the dimension of the semantic vectors"))
+        throw(MethodError("n larger than the dimension of the semantic vectors"))
     end
     sems = Vector{Union{Missing, Float32}}(missing, size(s_cor,1))
     for i in 1:size(s_cor)[1]
@@ -548,9 +548,11 @@ function compute_all_measures(data_val::DataFrame,
                               S_val::Union{JudiLing.SparseMatrixCSC, Matrix},
                               Shat_val::Union{JudiLing.SparseMatrixCSC, Matrix},
                               F_train::Union{JudiLing.SparseMatrixCSC, Matrix},
+                              G_train::Union{JudiLing.SparseMatrixCSC, Matrix},
                               res_learn::Array{Array{JudiLing.Result_Path_Info_Struct,1},1},
                               gpi_learn::Array{JudiLing.Gold_Path_Info_Struct,1},
-                              rpi_learn::Array{JudiLing.Gold_Path_Info_Struct,1})
+                              rpi_learn::Array{JudiLing.Gold_Path_Info_Struct,1};
+                              sem_density_n::Int64=8)
     # MAKE PREPARATIONS
 
     # generate additional objects for the measures such as
@@ -561,7 +563,6 @@ function compute_all_measures(data_val::DataFrame,
     results, cor_s, df, pred_df = make_measure_preparations(data_val, S_val, Shat_val,
                                     res_learn, cue_obj_train, cue_obj_val, rpi_learn)
 
-
     # CALCULATE MEASURES
 
     # vector length/activation/uncertainty
@@ -569,15 +570,21 @@ function compute_all_measures(data_val::DataFrame,
     results[!,"L2Shat"] = L2Norm(Shat_val)
 
     # semantic neighbourhood
-    results[!,"SemanticDensity"] = density(cor_s)
+    results[!,"SemanticDensity"] = density(cor_s, n=sem_density_n)
     results[!,"ALC"] = ALC(cor_s)
     results[!,"EDNN"] = EDNN(Shat_val, S_val)
     results[!,"NNC"] = NNC(cor_s)
+    results[!,"DistanceTravelledF"] = total_distance(cue_obj_val, F_train, :F)
 
     # comprehension accuracy
     results[!,"TargetCorrelation"] = target_correlation(cor_s)
     results[!,"rank"] = rank(cor_s)
     results[!,"recognition"] = recognition(data_val)
+    results[!,"ComprehensionUncertainty"] = vec(uncertainty(S_val, Shat_val))
+
+    # Measures of production accuracy/support/uncertainty for the target form
+    results[!,"ProductionUncertainty"] = vec(uncertainty(cue_obj_val.C, Chat_val))
+    results[!,"DistanceTravelledG"] = total_distance(cue_obj_val, G_train, :G)
 
     # production accuracy/support/uncertainty for the predicted form
     results[!,"SCPP"] = SCPP(df, results)
@@ -587,7 +594,6 @@ function compute_all_measures(data_val::DataFrame,
     results[!,"C-Precision"] = c_precision(Chat_val, cue_obj_val.C)
     results[!,"L1Chat"] = L1Norm(Chat_val)
     results[!,"SemanticSupportForForm"] = semantic_support_for_form(cue_obj_val, Chat_val)
-    results[!,"DistanceTravelled"] = total_distance(cue_obj_val, F_train)
 
     # support for the predicted path, focusing on the path transitions and components of the path
     results[!,"WithinPathEntropies"] = within_path_entropies(pred_df)
@@ -603,7 +609,6 @@ function compute_all_measures(data_val::DataFrame,
     results[!,"PathEntropiesSCP"] = path_entropies_scp(df)
     results[!,"PathEntropiesChat"] = path_entropies_chat(res_learn, Chat_val)
 
-
     results
 end
 
@@ -613,4 +618,27 @@ function safe_divide(x, y)
     else
         missing
     end
+end
+
+function mse_rowwise(X::Union{Matrix,JudiLing.SparseMatrixCSC},
+                     Y::Union{Matrix,JudiLing.SparseMatrixCSC})
+    mses = zeros(size(X, 1), size(Y,1))
+    for (index_x, x) in enumerate(eachrow(X))
+        for (index_y, y) in enumerate(eachrow(Y))
+            mses[index_x, index_y] = StatsBase.msd(convert(Vector{Float64}, x),
+                                                   convert(Vector{Float64}, y))
+        end
+    end
+    mses
+end
+
+function normalise_vector(x)
+    x = vec(x)
+    x_min, _ = findmin(x)
+    x_max, _ = findmax(x)
+    (x .- x_min) ./ (x_max-x_min)
+end
+
+function normalise_matrix_rowwise(X::Union{Matrix,JudiLing.SparseMatrixCSC})
+    mapreduce(permutedims, vcat, map(normalise_vector, eachrow(X)))
 end
