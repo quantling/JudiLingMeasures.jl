@@ -2,10 +2,11 @@
 # test measures
 ########################################
 
-pm = pyimport("pyldl.mapping")
-lmea = pyimport("pyldl.measures")
 pandas = pyimport("pandas")
 np = pyimport("numpy")
+pm = pyimport("pyldl.mapping")
+lmea = pyimport("pyldl.measures")
+
 
 # define some data to test with
 ma1 = [[1 2 3]; [-1 -2 -3]; [1 2 3]]
