@@ -515,7 +515,7 @@ function uncertainty(SC::Union{JudiLing.SparseMatrixCSC, Matrix},
         cor_sc = cosine_similarity(SChat, SC)
     end
     cor_sc = normalise_matrix_rowwise(cor_sc)
-    ranks = mapreduce(permutedims, vcat, map(x -> sortperm(x, rev=true), eachrow(cor_sc)))
+    ranks = mapreduce(permutedims, vcat, map(x -> ordinalrank(x).-1, eachrow(cor_sc)))
     vec(sum(cor_sc .* ranks, dims=2))
 end
 
@@ -579,17 +579,27 @@ function functional_load(F::Union{JudiLing.SparseMatrixCSC, Matrix},
     if ismissing(cue_list)
          ngrams = cue_obj.gold_ind
     else
-        ngrams = [cue_obj.f2i[cue] for cue in cue_list]
+        ngrams = [[cue_obj.f2i[cue]] for cue in cue_list]
     end
-    if method == "corr"
-        cor_fs = JudiLingMeasures.correlation_rowwise(F, Shat)
-    elseif method == "mse"
-        cor_fs = JudiLingMeasures.mse_rowwise(F, Shat)
-    end
+    # if method == "corr"
+    #     cor_fs = JudiLingMeasures.correlation_rowwise(F, Shat)
+    # elseif method == "mse"
+    #     cor_fs = JudiLingMeasures.mse_rowwise(F, Shat)
+    # end
      functional_loads = []
      for (index, n) in enumerate(ngrams)
-         s = cor_fs[n, index]
-         append!(functional_loads, [s])
+         #s = cor_fs[n, index]
+         if method == "corr"
+             s = JudiLingMeasures.correlation_rowwise(F[n,:], Shat[[index],:])
+         elseif method == "mse"
+             s = JudiLingMeasures.mse_rowwise(F[n,:], Shat[[index],:])
+         end
+         if !ismissing(cue_list)
+             append!(functional_loads, s)
+         else
+             append!(functional_loads, [s])
+        end
+
      end
      functional_loads
  end

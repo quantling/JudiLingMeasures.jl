@@ -7,6 +7,7 @@ using LinearAlgebra
 using Statistics
 using Test
 using Distances
+using PyCall
 
 # Test scripts
 include("test_helpers.jl")

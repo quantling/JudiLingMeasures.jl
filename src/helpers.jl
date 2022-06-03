@@ -552,7 +552,8 @@ function compute_all_measures(data_val::DataFrame,
                               res_learn::Array{Array{JudiLing.Result_Path_Info_Struct,1},1},
                               gpi_learn::Array{JudiLing.Gold_Path_Info_Struct,1},
                               rpi_learn::Array{JudiLing.Gold_Path_Info_Struct,1};
-                              sem_density_n::Int64=8)
+                              sem_density_n::Int64=8,
+                              calculate_production_uncertainty::Bool=false)
     # MAKE PREPARATIONS
 
     # generate additional objects for the measures such as
@@ -583,7 +584,9 @@ function compute_all_measures(data_val::DataFrame,
     results[!,"ComprehensionUncertainty"] = vec(uncertainty(S_val, Shat_val))
 
     # Measures of production accuracy/support/uncertainty for the target form
-    results[!,"ProductionUncertainty"] = vec(uncertainty(cue_obj_val.C, Chat_val))
+    if calculate_production_uncertainty
+        results[!,"ProductionUncertainty"] = vec(uncertainty(cue_obj_val.C, Chat_val))
+    end
     results[!,"DistanceTravelledG"] = total_distance(cue_obj_val, G_train, :G)
 
     # production accuracy/support/uncertainty for the predicted form
