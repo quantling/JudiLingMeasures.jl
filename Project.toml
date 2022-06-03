@@ -4,6 +4,7 @@ authors = ["MariaHei <mabuwu83@gmail.com>"]
 version = "0.1.0"
 
 [deps]
+Conda = "8f4d0f93-b110-5947-807f-2305c1781a2d"
 DataFrames = "a93c6f00-e57d-5684-b7b6-d8193f3e46c0"
 Distances = "b4f34e82-e78d-54a5-968a-f98e89d6e8f7"
 JudiLing = "b43a184b-0e9d-488b-813a-80fd5dbc9fd8"

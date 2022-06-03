@@ -26,6 +26,10 @@ jobs:
         with:
           version: ${{ matrix.version }}
           arch: ${{ matrix.arch }}
+      - name: Install pyldl
+        run: |
+          git clone https://github.com/msaito8623/pyldl
+          pip install -e pyldl
       - uses: julia-actions/julia-runtest@latest
         env:
           PYTHON: ""
