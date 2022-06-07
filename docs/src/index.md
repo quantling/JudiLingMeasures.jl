@@ -1,7 +1,7 @@
 # JudiLingMeasures.jl
 
 
-This is code for JudiLingMeasures. Most measures are based on R implementations in WpmWithLdl (Baayen et al., 2018) and [LdlConvFunctions](https://github.com/dosc91/LDLConvFunctions) (Schmitz, 2021) and the python implementation in (pyldl)[https://github.com/msaito8623/pyldl] (Saito, 2022) (but all errors are my own). The conceptual work behind this package is therefore very much an effort of many people (see [Bibliography](@ref)). I have tried to acknowledge where each measure is used/introduced, but if I have missed anything, or you find any errors please let me know: maria dot heitmeier at uni dot tuebingen dot de.
+This is code for JudiLingMeasures. Most measures are based on R implementations in WpmWithLdl (Baayen et al., 2018) and [LdlConvFunctions](https://github.com/dosc91/LDLConvFunctions) (Schmitz, 2021) and the python implementation in [pyldl](https://github.com/msaito8623/pyldl) (Saito, 2022) (but all errors are my own). The conceptual work behind this package is therefore very much an effort of many people (see [Bibliography](@ref)). I have tried to acknowledge where each measure is used/introduced, but if I have missed anything, or you find any errors please let me know: maria dot heitmeier at uni dot tuebingen dot de.
 
 PLEASE NOTE THAT THIS PACKAGE IS WORK IN PROGRESS. MAJOR CHANGES TO THE CODE ARE POSSIBLE AT ANY POINT AND NEW MEASURES ARE STILL BEING ADDED.
 
