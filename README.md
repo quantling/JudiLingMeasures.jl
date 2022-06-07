@@ -31,6 +31,6 @@ For a demo of this package, please see `notebooks/measures_demo.ipynb`.
 
 ## Measures in this package
 
-For an overview over all measures in this package and how to use them, please refer to the documentation, which can be found in `docs/build/index.html`.
+For an overview over all measures in this package and how to use them, please refer to the documentation, which can be found [here](https://mariahei.github.io/JudiLingMeasures.jl/dev/index.html).
 
-For a comparison of measures in JudiLingMeasures and WpmWithLDL/[LDLConvFunctions](https://github.com/dosc91/LDLConvFunctions) see `notebooks/compare_JudiLingMeasures_with_WpmWithLdl_and_LDLConvFunctions.ipynb`.
+For a comparison of measures in JudiLingMeasures and WpmWithLDL, [LDLConvFunctions](https://github.com/dosc91/LDLConvFunctions) and [pyldl](https://github.com/msaito8623/pyldl) see `notebooks/compare_JudiLingMeasures_with_WpmWithLdl_LDLConvFunctions_pyldl.ipynb`.

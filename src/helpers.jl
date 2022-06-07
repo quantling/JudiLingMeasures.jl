@@ -540,9 +540,13 @@ end
                          Chat_val::Union{JudiLing.SparseMatrixCSC, Matrix},
                          S_val::Union{JudiLing.SparseMatrixCSC, Matrix},
                          Shat_val::Union{JudiLing.SparseMatrixCSC, Matrix},
+                         F_train::Union{JudiLing.SparseMatrixCSC, Matrix},
+                         G_train::Union{JudiLing.SparseMatrixCSC, Matrix},
                          res_learn::Array{Array{JudiLing.Result_Path_Info_Struct,1},1},
                          gpi_learn::Array{JudiLing.Gold_Path_Info_Struct,1},
-                         rpi_learn::Array{JudiLing.Gold_Path_Info_Struct,1})
+                         rpi_learn::Array{JudiLing.Gold_Path_Info_Struct,1};
+                         sem_density_n::Int64=8,
+                         calculate_production_uncertainty::Bool=false)
 Compute all measures currently available in JudiLingMeasures for the data of interest.
 # Arguments
 - `data_val::DataFrame`: The data for which measures should be calculated (the data of interest).
@@ -597,11 +601,11 @@ function compute_all_measures(data_val::DataFrame,
     results[!,"TargetCorrelation"] = target_correlation(cor_s)
     results[!,"rank"] = rank(cor_s)
     results[!,"recognition"] = recognition(data_val)
-    results[!,"ComprehensionUncertainty"] = vec(uncertainty(S_val, Shat_val))
+    results[!,"ComprehensionUncertainty"] = vec(uncertainty(S_val, Shat_val, method="cosine"))
 
     # Measures of production accuracy/support/uncertainty for the target form
     if calculate_production_uncertainty
-        results[!,"ProductionUncertainty"] = vec(uncertainty(cue_obj_val.C, Chat_val))
+        results[!,"ProductionUncertainty"] = vec(uncertainty(cue_obj_val.C, Chat_val, method="cosine"))
     end
     results[!,"DistanceTravelledG"] = total_distance(cue_obj_val, G_train, :G)
 
