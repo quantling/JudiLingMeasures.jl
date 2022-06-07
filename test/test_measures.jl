@@ -293,7 +293,7 @@ end
     #                     lmea.uncertainty("walked", shat, smat),
     #                     lmea.uncertainty("walks", shat, smat)])
 
-    end
+    # end
 end
 
 @testset "Functional Load" begin
