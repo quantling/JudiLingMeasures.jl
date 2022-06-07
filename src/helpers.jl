@@ -50,7 +50,11 @@ julia> correlation_rowwise(ma2, ma3)
 """
 function correlation_rowwise(S1::Union{JudiLing.SparseMatrixCSC, Matrix},
                              S2::Union{JudiLing.SparseMatrixCSC, Matrix})
-    cor(S1, S2, dims=2)
+    if (size(S1,1) > 0) & (size(S1,2) > 0) & (size(S2,1) > 0) & (size(S2,2) > 0)
+        cor(S1, S2, dims=2)
+    else
+        missing
+    end
 end
 
 """
@@ -100,11 +104,15 @@ julia> mean_rowwise(ma1)
 ```
 """
 function mean_rowwise(S::Union{JudiLing.SparseMatrixCSC, Matrix})
-    map(mean, eachrow(S))
+    if (size(S,1) > 0) & (size(S,2) > 0)
+        map(mean, eachrow(S))
+    else
+        missing
+    end
 end
 
 """
-    euclidean_distance_array(Shat::Union{JudiLing.SparseMatrixCSC, Matrix},
+    euclidean_distance_rowwise(Shat::Union{JudiLing.SparseMatrixCSC, Matrix},
                              S::Union{JudiLing.SparseMatrixCSC, Matrix})
 Calculate the pairwise Euclidean distances between all rows in Shat and S.
 
@@ -113,16 +121,16 @@ Throws error if missing is included in any of the arrays.
 ```jldoctest
 julia> ma1 = [[1 2 3]; [-1 -2 -3]; [1 2 3]]
 julia> ma4 = [[1 2 2]; [1 -2 -3]; [0 2 3]]
-julia> euclidean_distance_array(ma1, ma4)
+julia> euclidean_distance_rowwise(ma1, ma4)
 3×3 Matrix{Float64}:
  1.0     7.2111  1.0
  6.7082  2.0     7.28011
  1.0     7.2111  1.0
 ```
 """
-function euclidean_distance_array(Shat::Union{JudiLing.SparseMatrixCSC, Matrix},
+function euclidean_distance_rowwise(Shat::Union{JudiLing.SparseMatrixCSC, Matrix},
                                   S::Union{JudiLing.SparseMatrixCSC, Matrix})
-    Distances.pairwise(Euclidean(), Shat', S')
+    Distances.pairwise(Euclidean(), Shat', S', dims=2)
 end
 
 """
@@ -197,7 +205,11 @@ julia> get_avg_levenshtein(targets, preds)
 ```
 """
 function get_avg_levenshtein(targets::Union{Array, SubArray}, preds::Union{Array, SubArray})
-    mean(StringDistances.Levenshtein().(targets, preds))
+    if (length(targets) > 0) & (length(preds) > 0)
+        mean(StringDistances.Levenshtein().(targets, preds))
+    else
+        missing
+    end
 end
 
 """
@@ -213,10 +225,14 @@ julia> entropy(ps)
 ```
 """
 function entropy(ps::Union{Missing, Array, SubArray})
-    if (!any(ismissing.(ps)) && length(ps) > 0)
+    if ((!any(ismissing.(ps))) && (length(ps) > 0))
         ps = ps[ps.>0]
-        p = ps./sum(ps)
-        -sum(p.*log2.(p))
+        if length(ps) == 0
+            missing
+        else
+            p = ps./sum(ps)
+            -sum(p.*log2.(p))
+        end
     else
         missing
     end
@@ -459,7 +475,7 @@ julia> cosine_similarity(ma1, ma4)
 ```
 """
 function cosine_similarity(s_hat_collection, S)
-    dists = Distances.pairwise(CosineDist(), s_hat_collection', S')
+    dists = Distances.pairwise(CosineDist(), s_hat_collection', S', dims=2)
     sims = - dists .+1
     sims
 end
@@ -616,7 +632,7 @@ function compute_all_measures(data_val::DataFrame,
 end
 
 function safe_divide(x, y)
-    if y != 0
+    if (y != 0) & (!ismissing(y)) & (!ismissing(x))
         x/y
     else
         missing
@@ -637,11 +653,19 @@ end
 
 function normalise_vector(x)
     x = vec(x)
-    x_min, _ = findmin(x)
-    x_max, _ = findmax(x)
-    (x .- x_min) ./ (x_max-x_min)
+    if length(x) > 0
+        x_min, _ = findmin(x)
+        x_max, _ = findmax(x)
+        (x .- x_min) ./ (x_max-x_min)
+    else
+        x
+    end
 end
 
 function normalise_matrix_rowwise(X::Union{Matrix,JudiLing.SparseMatrixCSC})
-    mapreduce(permutedims, vcat, map(normalise_vector, eachrow(X)))
+    if (size(X, 1) > 0) & (size(X,2) > 0)
+        mapreduce(permutedims, vcat, map(normalise_vector, eachrow(X)))
+    else
+        X
+    end
 end

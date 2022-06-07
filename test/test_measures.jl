@@ -4,8 +4,8 @@
 
 pandas = pyimport("pandas")
 np = pyimport("numpy")
-#pm = pyimport("pyldl.mapping")
-#lmea = pyimport("pyldl.measures")
+pm = pyimport("pyldl.mapping")
+lmea = pyimport("pyldl.measures")
 
 
 # define some data to test with
@@ -118,7 +118,7 @@ end
 end
 
 @testset "last_support" begin
-    @test_skip isapprox(JudiLingMeasures.last_support(cue_obj, Chat), [0.99991, 0.999773, 0.999857], rtol=1e-3)
+    @test isapprox(JudiLingMeasures.last_support(cue_obj, Chat), [0.99974, 0.999874, 0.99986], rtol=1e-4)
 end
 
 @testset "path_counts" begin
@@ -141,8 +141,9 @@ end
     @test isapprox(JudiLingMeasures.within_path_entropies(pred_df), [1.584962500721156, 1.584962500721156, 1.584962500721156], rtol=1e-1)
     pred_df_mock = DataFrame("timestep_support"=>[missing, [0,1,missing]])
     @test isequal(JudiLingMeasures.within_path_entropies(pred_df_mock), [missing, missing])
-    pred_df_mock2 = DataFrame("timestep_support"=>[[1,2,3], [0,0,0]])
-    @test isapprox(JudiLingMeasures.within_path_entropies(pred_df_mock2), [JudiLingMeasures.entropy([1,2,3]), 0.])
+    pred_df_mock2 = DataFrame("timestep_support"=>[[1,2,3], [1,1,1]])
+    @test isapprox(JudiLingMeasures.within_path_entropies(pred_df_mock2), [JudiLingMeasures.entropy([1,2,3]),
+                                                                           JudiLingMeasures.entropy([1,1,1])])
 end
 
 @testset "ALDC" begin
@@ -154,7 +155,8 @@ end
 end
 
 @testset "Mean word support" begin
-    @test_skip isapprox(JudiLingMeasures.mean_word_support(res_learn, pred_df), [0.993288, 0.993288, 0.993288], rtol=1e-4)
+    @test isapprox(JudiLingMeasures.mean_word_support(res_learn, pred_df),
+                        [0.9931199999999999, 0.993252, 0.993238], rtol=1e-4)
 end
 
 @testset "TargetCorrelation" begin
@@ -172,7 +174,7 @@ end
 end
 
 @testset "lwlr" begin
-    @test_skip isapprox(JudiLingMeasures.lwlr(res_learn, pred_df), [3. /0.993288, 3. /0.993152, 3. /0.993235], rtol=1e-4)
+    @test isapprox(JudiLingMeasures.lwlr(res_learn, pred_df), [3. /0.9931199999999999, 3. /0.993252, 3. /0.993238], rtol=1e-4)
 end
 
 @testset "PathSumChat" begin
@@ -290,8 +292,8 @@ end
     #                    [lmea.uncertainty("walk", shat, smat),
     #                     lmea.uncertainty("walked", shat, smat),
     #                     lmea.uncertainty("walks", shat, smat)])
-    #
-    # end
+
+    end
 end
 
 @testset "Functional Load" begin

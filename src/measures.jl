@@ -100,7 +100,7 @@ julia> EDNN(ma1, ma4)
 """
 function EDNN(Shat::Union{JudiLing.SparseMatrixCSC, Matrix},
               S::Union{JudiLing.SparseMatrixCSC, Matrix})
-    eucl_sims = euclidean_distance_array(Shat, S)
+    eucl_sims = euclidean_distance_rowwise(Shat, S)
     ednn = get_nearest_neighbour_eucl(eucl_sims)
     vec(ednn)
 end
@@ -486,22 +486,22 @@ julia> Shat = [[1 2 1 1]; [1 -2 3 1]; [1 -2 3 3]; [0 0 1 2]]
 julia> S = [[-1 2 1 1]; [1 2 3 1]; [1 2 0 1]; [0.5 -2 1.5 0]]
 julia> JudiLingMeasures.uncertainty(S, Shat, method="corr") # default
 4-element Vector{Float64}:
- 5.3583589101779605
- 5.45682093125373
- 5.330660086961848
- 6.675366532252984
+ 5.447907056192456
+ 4.5888162633614
+ 4.365247579557125
+ 5.052415166794307
 julia> JudiLingMeasures.uncertainty(S, Shat, method="mse")
 4-element Vector{Float64}:
- 3.909090909090909
- 5.44186046511628
- 5.314285714285714
- 5.375
+ 3.5454545454545454
+ 5.488372093023256
+ 5.371428571428572
+ 4.5
 julia> JudiLingMeasures.uncertainty(S, Shat, method="cosine")
 4-element Vector{Float64}:
- 5.4030832120059165
- 4.610897476199016
- 4.744838560168514
- 3.526925997296189
+ 5.749202747845322
+ 4.308224063773331
+ 4.423630522948703
+ 4.877528828745243
 ```
 """
 function uncertainty(SC::Union{JudiLing.SparseMatrixCSC, Matrix},
@@ -538,7 +538,7 @@ Measure developed by Motoki Saito. Note: the current version of Functional Load 
 
 # Example
 ```jldoctest
-julia> using JudiLing, DataFrames
+julia> using JudiLing, DataFrames, JudiLingMeasures
 julia> dat = DataFrame("Word"=>["abc", "bcd", "cde"]);
 julia> cue_obj = JudiLing.make_cue_matrix(dat, grams=3, target_col=:Word);
 julia> n_features = size(cue_obj.C, 2);
@@ -551,9 +551,9 @@ julia> F = JudiLing.make_transform_matrix(cue_obj.C, S);
 julia> Shat = cue_obj.C * F;
 julia> JudiLingMeasures.functional_load(F, Shat, cue_obj)
 3-element Vector{Any}:
- [1.0, 1.0, 1.0]
  [0.9999999999999999, 1.0, 1.0]
- [0.9999999999999998, 0.9999999999999998, 1.0]
+ [1.0, 0.9999999999999999, 1.0]
+ [0.9999999999999998, 0.9999999999999999, 0.9999999999999998]
 julia> JudiLingMeasures.functional_load(F, Shat, cue_obj, cue_list=["#ab", "#bc", "#cd"])
 3-element Vector{Any}:
  1.0
@@ -561,14 +561,14 @@ julia> JudiLingMeasures.functional_load(F, Shat, cue_obj, cue_list=["#ab", "#bc"
  0.9999999999999998
 julia> JudiLingMeasures.functional_load(F, Shat, cue_obj, cue_list=["#ab", "#bc", "#cd"], method="mse")
 3-element Vector{Any}:
- 13.929885322944285
-  5.26127506129032
- 10.371443574053322
+  8.398316717482945
+  8.222104191091363
+ 14.970231369151817
 julia> JudiLingMeasures.functional_load(F, Shat, cue_obj, method="mse")
 3-element Vector{Any}:
- [13.929885322944285, 13.929885322944251, 13.929885322944255]
- [5.26127506129032, 5.261275061290302, 5.261275061290303]
- [10.371443574053322, 10.371443574053368, 10.371443574053368]
+ [8.398316717482945, 8.398316717482906, 8.398316717482906]
+ [8.222104191091363, 8.222104191091224, 8.222104191091226]
+ [14.970231369151817, 14.970231369151785, 14.970231369151788]
 ```
 """
 function functional_load(F::Union{JudiLing.SparseMatrixCSC, Matrix},
@@ -590,9 +590,9 @@ function functional_load(F::Union{JudiLing.SparseMatrixCSC, Matrix},
      for (index, n) in enumerate(ngrams)
          #s = cor_fs[n, index]
          if method == "corr"
-             s = JudiLingMeasures.correlation_rowwise(F[n,:], Shat[[index],:])
+             s = vec(JudiLingMeasures.correlation_rowwise(F[n,:], Shat[[index],:]))
          elseif method == "mse"
-             s = JudiLingMeasures.mse_rowwise(F[n,:], Shat[[index],:])
+             s = vec(JudiLingMeasures.mse_rowwise(F[n,:], Shat[[index],:]))
          end
          if !ismissing(cue_list)
              append!(functional_loads, s)
