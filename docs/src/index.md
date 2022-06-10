@@ -115,6 +115,15 @@ The only measures not computed in `JudiLingMeasures.compute_all_measures` are th
 - "Functional Load"
 - "Semantic Support for Form" with `sum_supports=false`
 
+Note:
+In general, measures which include comparing to alternatives, such as
+- Semantic Density
+- EDNN
+- ALC
+- ...
+only take into account the data of interest as comparison data. This is anti-conservative.
+One way to avoid this is to compute measures for all data (training and validation data) and then only analyse the measures for the validation data.
+
 ## Overview over all available measures
 
 ### Measures capturing comprehension (processing on the semantic side of the network)
