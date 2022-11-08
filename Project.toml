@@ -20,5 +20,5 @@ StringDistances = "88034a9c-02f8-509d-84a9-84ec65e18404"
 
 [compat]
 Distances = "0.10.7"
-JudiLing = "0.5.5"
+JudiLing = "0.5.5, 0.6.0"
 StatsBase = "0.33"
