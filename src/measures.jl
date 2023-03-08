@@ -106,6 +106,19 @@ function EDNN(Shat::Union{JudiLing.SparseMatrixCSC, Matrix},
 end
 
 """
+    EDNN(Shat::Union{JudiLing.SparseMatrixCSC, Matrix},
+         S::Union{JudiLing.SparseMatrixCSC, Matrix})
+Compute the Euclidean Distance nearest neighbours between the predicted semantic
+vectors in Shat and the semantic vectors in S_val and S_train.
+"""
+function EDNN(Shat_val::Union{JudiLing.SparseMatrixCSC, Matrix},
+              S_val::Union{JudiLing.SparseMatrixCSC, Matrix},
+              S_train::Union{JudiLing.SparseMatrixCSC, Matrix})
+    S = vcat(S_val, S_train)
+    EDNN(Shat_val, S)
+end
+
+"""
     NNC(cor_s::Union{JudiLing.SparseMatrixCSC, Matrix})
 For each predicted semantic vector get the highest correlation with the semantic vectors in S.
 # Arguments
@@ -471,9 +484,11 @@ end
     function uncertainty(SC::Union{JudiLing.SparseMatrixCSC, Matrix},
                          SChat::Union{JudiLing.SparseMatrixCSC, Matrix};
                          method::Union{String, Symbol} = "corr")
-Sum of correlation/mse/cosine similarity of SChat with all vectors in SC and the ranks of this correlation/mse/cosine similarity.
+Sum of correlation/mse/cosine similarity of SChat with all vectors in SC and the
+ranks of this correlation/mse/cosine similarity.
 
-Measure developed by Motoki Saito. Note: the current version of uncertainty is not completely tested against its original implementation in [pyldl](https://github.com/msaito8623/pyldl).
+Measure developed by Motoki Saito. Note: the current version of uncertainty is
+not completely tested against its original implementation in [pyldl](https://github.com/msaito8623/pyldl).
 
 # Arguments
 - SC::Union{JudiLing.SparseMatrixCSC, Matrix}: S or C matrix of the data of interest
@@ -517,6 +532,30 @@ function uncertainty(SC::Union{JudiLing.SparseMatrixCSC, Matrix},
     cor_sc = normalise_matrix_rowwise(cor_sc)
     ranks = mapreduce(permutedims, vcat, map(x -> ordinalrank(x).-1, eachrow(cor_sc)))
     vec(sum(cor_sc .* ranks, dims=2))
+end
+
+"""
+    function uncertainty(SC_val::Union{JudiLing.SparseMatrixCSC, Matrix},
+                         SChat_val::Union{JudiLing.SparseMatrixCSC, Matrix},
+                         SC_train::Union{JudiLing.SparseMatrixCSC, Matrix};
+                         method::Union{String, Symbol} = "corr")
+Sum of correlation/mse/cosine similarity of SChat_val with all vectors in SC_val and S_train and the
+ranks of this correlation/mse/cosine similarity.
+
+Measure developed by Motoki Saito. Note: the current version of uncertainty is
+not completely tested against its original implementation in [pyldl](https://github.com/msaito8623/pyldl).
+
+# Arguments
+- SC::Union{JudiLing.SparseMatrixCSC, Matrix}: S or C matrix of the data of interest
+- SChat::Union{JudiLing.SparseMatrixCSC, Matrix}: Shat or Chat matrix of the data of interest
+- method::Union{String, Symbol} = "corr": Method to compute similarity
+"""
+function uncertainty(SC_val::Union{JudiLing.SparseMatrixCSC, Matrix},
+                     SChat_val::Union{JudiLing.SparseMatrixCSC, Matrix},
+                     SC_train::Union{JudiLing.SparseMatrixCSC, Matrix};
+                     method::Union{String, Symbol} = "corr")
+    SC = vcat(SC_val, SC_train)
+    uncertainty(SC, SChat_val, method=method)
 end
 
 """

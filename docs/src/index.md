@@ -67,9 +67,9 @@ A = cue_obj.A;
 max_t = JudiLing.cal_max_timestep(latin, :Word);
 ```
 
-At the moment, there is a bug in `JudiLing.learn_paths_rpi`. We therefore use the patched version from `JudiLingMeasures`. Make sure that you set `check_gold_path=true`.
+Make sure that you set `check_gold_path=true`.
 ```
-res_learn, gpi_learn, rpi_learn = JudiLingMeasures.learn_paths_rpi(
+res_learn, gpi_learn, rpi_learn = JudiLing.learn_paths_rpi(
     latin,
     latin,
     cue_obj.C,
@@ -98,31 +98,37 @@ res_learn, gpi_learn, rpi_learn = JudiLingMeasures.learn_paths_rpi(
 Almost all available measures can be simply computed with
 
 ```
-all_measures = JudiLingMeasures.compute_all_measures(latin, # the data of interest
+all_measures = JudiLingMeasures.compute_all_measures_train(latin, # the data of interest
                                                      cue_obj, # the cue_obj of the training data
-                                                     cue_obj, # the cue_obj of the data of interest
                                                      Chat, # the Chat of the data of interest
                                                      S, # the S matrix of the data of interest
                                                      Shat, # the Shat matrix of the data of interest
                                                      F, # the F matrix
                                                      G, # the G matrix
-                                                     res_learn, # the output of learn_paths for the data of interest
-                                                     gpi_learn, # the gpi_learn object of the data of interest
-                                                     rpi_learn); # the rpi_learn object of the data of interest
+                                                     res_learn_train=res_learn, # the output of learn_paths for the data of interest
+                                                     gpi_learn_train=gpi_learn, # the gpi_learn object of the data of interest
+                                                     rpi_learn_train=rpi_learn); # the rpi_learn object of the data of interest
 ```
 
-The only measures not computed in `JudiLingMeasures.compute_all_measures` are those which return multiple values for each wordform. These are
+It's also possible to not compute measures based on the `learn_paths` algorithm:
+
+```
+all_measures = JudiLingMeasures.compute_all_measures_train(latin, # the data of interest
+                                                     cue_obj, # the cue_obj of the training data
+                                                     Chat, # the Chat of the training data
+                                                     S, # the S matrix of the training data
+                                                     Shat, # the Shat matrix of the training data
+                                                     F, # the F matrix
+                                                     G, # the G matrix); #
+```
+
+If `low_cost_measures_only` is set to `true`, only measures which are computationally relatively lean are computed.
+
+The only measures not computed in `JudiLingMeasures.compute_all_measures_train` are those which return multiple values for each wordform. These are
 - "Functional Load"
 - "Semantic Support for Form" with `sum_supports=false`
 
-Note:
-In general, measures which include comparing to alternatives, such as
-- Semantic Density
-- EDNN
-- ALC
-- ...
-only take into account the data of interest as comparison data. This is anti-conservative.
-One way to avoid this is to compute measures for all data (training and validation data) and then only analyse the measures for the validation data.
+It is also possible to compute measures for validation data, please see the `measures_demo.ipynb` notebook for details.
 
 ## Overview over all available measures
 

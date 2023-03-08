@@ -129,7 +129,7 @@ julia> euclidean_distance_rowwise(ma1, ma4)
 ```
 """
 function euclidean_distance_rowwise(Shat::Union{JudiLing.SparseMatrixCSC, Matrix},
-                                  S::Union{JudiLing.SparseMatrixCSC, Matrix})
+                                    S::Union{JudiLing.SparseMatrixCSC, Matrix})
     Distances.pairwise(Euclidean(), Shat', S', dims=2)
 end
 
@@ -259,174 +259,81 @@ end
 
 
 """
-    learn_paths_rpi(data_train, data_val, C_train, S_val, F_train, Chat_val, A, i2f, f2i)
-Calculate learn_paths with results indices supports as well.
-
-THIS IS A PATCH OF THE `JudiLing.learn_paths_rpi` as long as it is not fixed there. If it is, it will be removed from this package.
-"""
-function learn_paths_rpi(
-    data_train,
-    data_val,
-    C_train,
-    S_val,
-    F_train,
-    Chat_val,
-    A,
-    i2f,
-    f2i;
-    gold_ind = nothing,
-    Shat_val = nothing,
-    check_gold_path = false,
-    max_t = 15,
-    max_can = 10,
-    threshold = 0.1,
-    is_tolerant = false,
-    tolerance = (-1000.0),
-    max_tolerance = 3,
-    grams = 3,
-    tokenized = false,
-    sep_token = nothing,
-    keep_sep = false,
-    target_col = "Words",
-    start_end_token = "#",
-    issparse = :auto,
-    sparse_ratio = 0.05,
-    if_pca = false,
-    pca_eval_M = nothing,
-    activation = nothing,
-    ignore_nan = true,
-    check_threshold_stat = false,
-    verbose = false
-    )
-
-    res = JudiLing.learn_paths(
-        data_train,
-        data_val,
-        C_train,
-        S_val,
-        F_train,
-        Chat_val,
-        A,
-        i2f,
-        f2i,
-        gold_ind = gold_ind,
-        Shat_val = Shat_val,
-        check_gold_path = check_gold_path,
-        max_t = max_t,
-        max_can = max_can,
-        threshold = threshold,
-        is_tolerant = is_tolerant,
-        tolerance = tolerance,
-        max_tolerance = max_tolerance,
-        grams = grams,
-        tokenized = tokenized,
-        sep_token = sep_token,
-        keep_sep = keep_sep,
-        target_col = target_col,
-        start_end_token = start_end_token,
-        issparse = issparse,
-        sparse_ratio = sparse_ratio,
-        if_pca = if_pca,
-        pca_eval_M = pca_eval_M,
-        activation = activation,
-        ignore_nan = ignore_nan,
-        check_threshold_stat = check_threshold_stat,
-        verbose = verbose
-    )
-
-    if check_gold_path
-        gpi = res[2]
-        res = res[1]
-    end
-
-    n = size(res)
-    ngrams_ind = JudiLing.make_ngrams_ind(res, n)
-    Shat = zeros(Float64, size(S_val))
-
-    for i in 1:n[1]
-        ci = ngrams_ind[i]
-        Shat[i,:] = sum(F_train[ci, :], dims = 1)
-    end
-
-    tmp, rpi = JudiLing.learn_paths(
-        data_train,
-        data_val,
-        C_train,
-        S_val,
-        F_train,
-        Chat_val,
-        A,
-        i2f,
-        f2i,
-        gold_ind = ngrams_ind,
-        Shat_val = Shat,
-        check_gold_path = true,
-        max_t = max_t,
-        max_can = 1,
-        threshold = 1,
-        is_tolerant = false,
-        tolerance = 1,
-        max_tolerance = 1,
-        grams = grams,
-        tokenized = tokenized,
-        sep_token = sep_token,
-        keep_sep = keep_sep,
-        target_col = target_col,
-        start_end_token = start_end_token,
-        issparse = issparse,
-        sparse_ratio = sparse_ratio,
-        if_pca = if_pca,
-        pca_eval_M = pca_eval_M,
-        activation = activation,
-        ignore_nan = ignore_nan,
-        check_threshold_stat = check_threshold_stat,
-        verbose = false
-    )
-
-    if check_gold_path
-        return res, gpi, rpi
-    else
-        return res, rpi
-    end
-
-end
-
-"""
-    function make_measure_preparations(data_val, S_val, Shat_val,
-                                       res_learn, cue_obj_train, cue_obj_val,
-                                       rpi_learn)
-Returns all additional objects needed for measure calculations.
-The data for which measures are to be calculated is called "data of interest".
+    function make_measure_preparations(data_train, S_train, Shat_train,
+                                       res_learn_train, cue_obj_train,
+                                       rpi_learn_train)
+Returns all additional objects needed for measure calculations if the data of interest is the training data.
 # Arguments
-- `data_val`: The data for which the measures are to be calculated (data of interest).
-- `S_val`: The semantic matrix of the data of interest
-- `Shat_val`: The predicted semantic matrix of the data of interest.
-- `res_learn`: The first object return by the `learn_paths_rpi` algorithm for the data of interest.
+- `data_train`: The data for which the measures are to be calculated (training data).
+- `S_train`: The semantic matrix of the training data
+- `Shat_train`: The predicted semantic matrix of the training data.
+- `res_learn_train`: The first object return by the `learn_paths_rpi` algorithm for the training data.
 - `cue_obj_train`: The cue object of the training data.
-- `cue_obj_val`: The cue object of the data of interest.
-- `rpi_learn`: The second object return by the `learn_paths_rpi` algorithm for the data of interest.
+- `rpi_learn_train`: The second object return by the `learn_paths_rpi` algorithm for the training data.
 # Returns
-- `results::DataFrame`: A deepcopy of `data_val`.
-- `cor_s::Matrix`: Correlation matrix between `Shat_val` and `S_val`.
-- `df::DataFrame`: The output of `res_learn` (of the data of interest) in form of a dataframe
+- `results::DataFrame`: A deepcopy of `data_train`.
+- `cor_s::Matrix`: Correlation matrix between `Shat_train` and `S_train`.
+- `df::DataFrame`: The output of `res_learn_train` (of the training data) in form of a dataframe
 - `rpi_df::DataFrame`: Stores the path information about the predicted forms (from `learn_paths`), which is needed to compute things like PathSum, PathCounts and PathEntropies.
 """
-function make_measure_preparations(data_val, S_val, Shat_val,
-                                   res_learn, cue_obj_train, cue_obj_val,
-                                   rpi_learn)
+function make_measure_preparations(data_train, S_train, Shat_train,
+                                   res_learn_train, cue_obj_train,
+                                   rpi_learn_train)
     # make a copy of the data to not change anything in there
-    results = deepcopy(data_val)
+    results = deepcopy(data_train)
 
     # compute the accuracy and the correlation matrix
-    acc_comp, cor_s = JudiLing.eval_SC(Shat_val, S_val, R=true)
+    acc_comp, cor_s = JudiLing.eval_SC(Shat_train, S_train, R=true)
 
     # represent the res_learn object as a dataframe
-    df = get_res_learn_df(res_learn, results, cue_obj_train, cue_obj_val)
+    df = get_res_learn_df(res_learn_train, results, cue_obj_train, cue_obj_train)
     missing_ind = df.utterance[ismissing.(df[!,:pred])]
     df_sub = df[Not(ismissing.(df.pred)),:]
 
 
-    rpi_df = JudiLing.write2df(rpi_learn)
+    rpi_df = JudiLing.write2df(rpi_learn_train)
+    rpi_df[:, :pred] = Vector{Union{Missing, String}}(missing, size(data_train,1))
+    rpi_df[Not(missing_ind),:pred] = df_sub[df_sub.isbest .== true,:pred]
+
+    results, cor_s, df, rpi_df
+end
+
+"""
+    function make_measure_preparations(data_val, S_train, S_val, Shat_val,
+                                       res_learn_val, cue_obj_train, cue_obj_val,
+                                       rpi_learn_val)
+Returns all additional objects needed for measure calculations if the data of interest is the validation data.
+# Arguments
+- `data_val`: The data for which the measures are to be calculated (validation data).
+- `S_train`: The semantic matrix of the training data
+- `S_val`: The semantic matrix of the validation data
+- `Shat_val`: The predicted semantic matrix of the validation data.
+- `res_learn_val`: The first object return by the `learn_paths_rpi` algorithm for the validation data.
+- `cue_obj_train`: The cue object of the training data.
+- `cue_obj_val`: The cue object of the data of interest.
+- `rpi_learn_val`: The second object return by the `learn_paths_rpi` algorithm for the validation data.
+# Returns
+- `results::DataFrame`: A deepcopy of `data_val`.
+- `cor_s::Matrix`: Correlation matrix between `Shat_val` and `S_val`.
+- `df::DataFrame`: The output of `res_learn_val` (of the validation data) in form of a dataframe
+- `rpi_df::DataFrame`: Stores the path information about the predicted forms (from `learn_paths`), which is needed to compute things like PathSum, PathCounts and PathEntropies.
+"""
+function make_measure_preparations(data_val, S_train, S_val, Shat_val,
+                                   res_learn_val, cue_obj_train, cue_obj_val,
+                                   rpi_learn_val)
+    # make a copy of the data to not change anything in there
+    results = deepcopy(data_val)
+
+    # compute the accuracy and the correlation matrix
+    acc_comp, cor_s = JudiLing.eval_SC(Shat_val, S_val, S_train, R=true)
+
+    # represent the res_learn object as a dataframe
+    df = JudiLingMeasures.get_res_learn_df(res_learn_val, results, cue_obj_train, cue_obj_val)
+    missing_ind = df.utterance[ismissing.(df[!,:pred])]
+    df_sub = df[Not(ismissing.(df.pred)),:]
+
+
+    rpi_df = JudiLing.write2df(rpi_learn_val)
     rpi_df[:, :pred] = Vector{Union{Missing, String}}(missing, size(data_val,1))
     rpi_df[Not(missing_ind),:pred] = df_sub[df_sub.isbest .== true,:pred]
 
@@ -534,46 +441,50 @@ end
 
 
 """
-    compute_all_measures(data_val::DataFrame,
-                         cue_obj_train::JudiLing.Cue_Matrix_Struct,
-                         cue_obj_val::JudiLing.Cue_Matrix_Struct,
-                         Chat_val::Union{JudiLing.SparseMatrixCSC, Matrix},
-                         S_val::Union{JudiLing.SparseMatrixCSC, Matrix},
-                         Shat_val::Union{JudiLing.SparseMatrixCSC, Matrix},
-                         F_train::Union{JudiLing.SparseMatrixCSC, Matrix},
-                         G_train::Union{JudiLing.SparseMatrixCSC, Matrix},
-                         res_learn::Array{Array{JudiLing.Result_Path_Info_Struct,1},1},
-                         gpi_learn::Array{JudiLing.Gold_Path_Info_Struct,1},
-                         rpi_learn::Array{JudiLing.Gold_Path_Info_Struct,1};
-                         sem_density_n::Int64=8,
-                         calculate_production_uncertainty::Bool=false)
-Compute all measures currently available in JudiLingMeasures for the data of interest.
+    function compute_all_measures_train(data_train::DataFrame,
+                                        cue_obj_train::JudiLing.Cue_Matrix_Struct,
+                                        Chat_train::Union{JudiLing.SparseMatrixCSC, Matrix},
+                                        S_train::Union{JudiLing.SparseMatrixCSC, Matrix},
+                                        Shat_train::Union{JudiLing.SparseMatrixCSC, Matrix},
+                                        F_train::Union{JudiLing.SparseMatrixCSC, Matrix},
+                                        G_train::Union{JudiLing.SparseMatrixCSC, Matrix};
+                                        res_learn_train::Union{Array{Array{JudiLing.Result_Path_Info_Struct,1},1}, Missing}=missing,
+                                        gpi_learn_train::Union{Array{JudiLing.Gold_Path_Info_Struct,1}, Missing}=missing,
+                                        rpi_learn_train::Union{Array{JudiLing.Gold_Path_Info_Struct,1}, Missing}=missing,
+                                        sem_density_n::Int64=8,
+                                        calculate_production_uncertainty::Bool=false,
+                                        low_cost_measures_only::Bool=false)
+Compute all measures currently available in JudiLingMeasures for the training data.
 # Arguments
-- `data_val::DataFrame`: The data for which measures should be calculated (the data of interest).
+- `data_train::DataFrame`: The data for which measures should be calculated (the training data).
 - `cue_obj_train::JudiLing.Cue_Matrix_Struct`: The cue object of the training data.
-- `cue_obj_val::JudiLing.Cue_Matrix_Struct`: The cue object of the data of interest.
-- `Chat_val::Union{JudiLing.SparseMatrixCSC, Matrix}`: The Chat matrix of the data of interest.
-- `S_val::Union{JudiLing.SparseMatrixCSC, Matrix}`: The S matrix of the data of interest.
-- `Shat_val::Union{JudiLing.SparseMatrixCSC, Matrix}`: The Shat matrix of the data of interest.
-- `res_learn::Array{Array{JudiLing.Result_Path_Info_Struct,1},1}`: The first output of JudiLingMeasures.learn_paths_rpi (with `check_gold_path=true`)
-- `gpi_learn::Array{JudiLing.Gold_Path_Info_Struct,1}`: The second output of JudiLingMeasures.learn_paths_rpi (with `check_gold_path=true`)
-- `rpi_learn::Array{JudiLing.Gold_Path_Info_Struct,1}`: The third output of JudiLingMeasures.learn_paths_rpi (with `check_gold_path=true`)
+- `Chat_train::Union{JudiLing.SparseMatrixCSC, Matrix}`: The Chat matrix of the training data.
+- `S_train::Union{JudiLing.SparseMatrixCSC, Matrix}`: The S matrix of the training data.
+- `Shat_train::Union{JudiLing.SparseMatrixCSC, Matrix}`: The Shat matrix of the training data.
+- `F_train::Union{JudiLing.SparseMatrixCSC, Matrix}`: Comprehension mapping matrix for the training data.
+- `G_train::Union{JudiLing.SparseMatrixCSC, Matrix}`: Production mapping matrix for the training data.
+- `res_learn_train::Union{Array{Array{JudiLing.Result_Path_Info_Struct,1},1}, Missing}=missing`: The first output of JudiLing.learn_paths_rpi (with `check_gold_path=true`)
+- `gpi_learn_train::Union{Array{JudiLing.Gold_Path_Info_Struct,1}, Missing}=missing`: The second output of JudiLing.learn_paths_rpi (with `check_gold_path=true`)
+- `rpi_learn_train::Union{Array{JudiLing.Gold_Path_Info_Struct,1}, Missing}=missing`: The third output of JudiLing.learn_paths_rpi (with `check_gold_path=true`)
+- `sem_density_n::Int64=8`: Number of neighbours to take into account in Semantic Density measure.
+- `calculate_production_uncertainty`: "Production Uncertainty" is computationally very heavy for large C matrices, therefore its computation is turned off by default.
+- `low_cost_measures_only::Bool=false`: Only compute measures which are not computationally heavy. Recommended for very large datasets.
 # Returns
-- `results::DataFrame`: A dataframe with all information in `data_val` plus all the computed measures.
+- `results::DataFrame`: A dataframe with all information in `data_train` plus all the computed measures.
 """
-function compute_all_measures(data_val::DataFrame,
-                              cue_obj_train::JudiLing.Cue_Matrix_Struct,
-                              cue_obj_val::JudiLing.Cue_Matrix_Struct,
-                              Chat_val::Union{JudiLing.SparseMatrixCSC, Matrix},
-                              S_val::Union{JudiLing.SparseMatrixCSC, Matrix},
-                              Shat_val::Union{JudiLing.SparseMatrixCSC, Matrix},
-                              F_train::Union{JudiLing.SparseMatrixCSC, Matrix},
-                              G_train::Union{JudiLing.SparseMatrixCSC, Matrix},
-                              res_learn::Array{Array{JudiLing.Result_Path_Info_Struct,1},1},
-                              gpi_learn::Array{JudiLing.Gold_Path_Info_Struct,1},
-                              rpi_learn::Array{JudiLing.Gold_Path_Info_Struct,1};
-                              sem_density_n::Int64=8,
-                              calculate_production_uncertainty::Bool=false)
+function compute_all_measures_train(data_train::DataFrame,
+                                    cue_obj_train::JudiLing.Cue_Matrix_Struct,
+                                    Chat_train::Union{JudiLing.SparseMatrixCSC, Matrix},
+                                    S_train::Union{JudiLing.SparseMatrixCSC, Matrix},
+                                    Shat_train::Union{JudiLing.SparseMatrixCSC, Matrix},
+                                    F_train::Union{JudiLing.SparseMatrixCSC, Matrix},
+                                    G_train::Union{JudiLing.SparseMatrixCSC, Matrix};
+                                    res_learn_train::Union{Array{Array{JudiLing.Result_Path_Info_Struct,1},1}, Missing}=missing,
+                                    gpi_learn_train::Union{Array{JudiLing.Gold_Path_Info_Struct,1}, Missing}=missing,
+                                    rpi_learn_train::Union{Array{JudiLing.Gold_Path_Info_Struct,1}, Missing}=missing,
+                                    sem_density_n::Int64=8,
+                                    calculate_production_uncertainty::Bool=false,
+                                    low_cost_measures_only::Bool=false)
     # MAKE PREPARATIONS
 
     # generate additional objects for the measures such as
@@ -581,56 +492,206 @@ function compute_all_measures(data_val::DataFrame,
     # - cor_s: the correlation matrix between Shat and S
     # - df: DataFrame of res_learn, the output of learn_paths
     # - pred_df: DataFrame with path supports for the predicted forms produced by learn_paths
-    results, cor_s, df, pred_df = make_measure_preparations(data_val, S_val, Shat_val,
-                                    res_learn, cue_obj_train, cue_obj_val, rpi_learn)
+    if (!ismissing(res_learn_train) && !ismissing(gpi_learn_train) && !ismissing(rpi_learn_train))
+        results, cor_s, df, pred_df = make_measure_preparations(data_train, S_train, Shat_train,
+                                        res_learn_train, cue_obj_train, rpi_learn_train)
+    else
+        results = deepcopy(data_train)
+
+        # compute the accuracy and the correlation matrix
+        acc_comp, cor_s = JudiLing.eval_SC(Shat_train, S_train, R=true)
+    end
 
     # CALCULATE MEASURES
 
     # vector length/activation/uncertainty
-    results[!,"L1Shat"] = L1Norm(Shat_val)
-    results[!,"L2Shat"] = L2Norm(Shat_val)
+    results[!,"L1Shat"] = L1Norm(Shat_train)
+    results[!,"L2Shat"] = L2Norm(Shat_train)
 
     # semantic neighbourhood
     results[!,"SemanticDensity"] = density(cor_s, n=sem_density_n)
     results[!,"ALC"] = ALC(cor_s)
-    results[!,"EDNN"] = EDNN(Shat_val, S_val)
+    results[!,"EDNN"] = EDNN(Shat_train, S_train)
     results[!,"NNC"] = NNC(cor_s)
-    results[!,"DistanceTravelledF"] = total_distance(cue_obj_val, F_train, :F)
+
+    if !low_cost_measures_only
+        results[!,"DistanceTravelledF"] = total_distance(cue_obj_train, F_train, :F)
+    end
 
     # comprehension accuracy
     results[!,"TargetCorrelation"] = target_correlation(cor_s)
     results[!,"rank"] = rank(cor_s)
-    results[!,"recognition"] = recognition(data_val)
-    results[!,"ComprehensionUncertainty"] = vec(uncertainty(S_val, Shat_val, method="cosine"))
+    results[!,"recognition"] = recognition(data_train)
+
+    if !low_cost_measures_only
+        results[!,"ComprehensionUncertainty"] = vec(uncertainty(S_train, Shat_train, method="cosine"))
+    end
 
     # Measures of production accuracy/support/uncertainty for the target form
-    if calculate_production_uncertainty
-        results[!,"ProductionUncertainty"] = vec(uncertainty(cue_obj_val.C, Chat_val, method="cosine"))
+    if calculate_production_uncertainty && !low_cost_measures_only
+        results[!,"ProductionUncertainty"] = vec(uncertainty(cue_obj_train.C, Chat_train, method="cosine"))
     end
-    results[!,"DistanceTravelledG"] = total_distance(cue_obj_val, G_train, :G)
+    if !low_cost_measures_only
+        results[!,"DistanceTravelledG"] = total_distance(cue_obj_train, G_train, :G)
+    end
 
     # production accuracy/support/uncertainty for the predicted form
-    results[!,"SCPP"] = SCPP(df, results)
-    results[!,"PathSum"] = path_sum(pred_df)
-    results[!,"TargetPathSum"] = target_path_sum(gpi_learn)
-    results[!,"PathSumChat"] = path_sum_chat(res_learn, Chat_val)
-    results[!,"C-Precision"] = c_precision(Chat_val, cue_obj_val.C)
-    results[!,"L1Chat"] = L1Norm(Chat_val)
-    results[!,"SemanticSupportForForm"] = semantic_support_for_form(cue_obj_val, Chat_val)
+    results[!,"C-Precision"] = c_precision(Chat_train, cue_obj_train.C)
+    results[!,"L1Chat"] = L1Norm(Chat_train)
+    results[!,"SemanticSupportForForm"] = semantic_support_for_form(cue_obj_train, Chat_train)
 
     # support for the predicted path, focusing on the path transitions and components of the path
-    results[!,"WithinPathEntropies"] = within_path_entropies(pred_df)
-    results[!,"Support"] = last_support(cue_obj_val, Chat_val)
-    results[!,"MeanWordSupport"] = mean_word_support(res_learn, pred_df)
-    results[!,"MeanWordSupportChat"] = mean_word_support_chat(res_learn, Chat_val)
-    results[!,"lwlr"] = lwlr(res_learn, pred_df)
-    results[!,"lwlrChat"] = lwlr_chat(res_learn, Chat_val)
+    results[!,"Support"] = last_support(cue_obj_train, Chat_train)
 
-    # support for competing forms
-    results[!,"PathCounts"] = path_counts(df)
-    results[!,"ALDC"] = ALDC(df)
-    results[!,"PathEntropiesSCP"] = path_entropies_scp(df)
-    results[!,"PathEntropiesChat"] = path_entropies_chat(res_learn, Chat_val)
+    if (!ismissing(res_learn_train) && !ismissing(gpi_learn_train) && !ismissing(rpi_learn_train))
+        # production accuracy/support/uncertainty for the predicted form
+        results[!,"SCPP"] = SCPP(df, results)
+        results[!,"PathSum"] = path_sum(pred_df)
+        results[!,"TargetPathSum"] = target_path_sum(gpi_learn_train)
+        results[!,"PathSumChat"] = path_sum_chat(res_learn_train, Chat_train)
+
+        # support for the predicted path, focusing on the path transitions and components of the path
+        results[!,"WithinPathEntropies"] = within_path_entropies(pred_df)
+        results[!,"MeanWordSupport"] = mean_word_support(res_learn_train, pred_df)
+        results[!,"MeanWordSupportChat"] = mean_word_support_chat(res_learn_train, Chat_train)
+        results[!,"lwlr"] = lwlr(res_learn_train, pred_df)
+        results[!,"lwlrChat"] = lwlr_chat(res_learn_train, Chat_train)
+
+        # support for competing forms
+        results[!,"PathCounts"] = path_counts(df)
+        results[!,"ALDC"] = ALDC(df)
+        results[!,"PathEntropiesSCP"] = path_entropies_scp(df)
+        results[!,"PathEntropiesChat"] = path_entropies_chat(res_learn_train, Chat_train)
+    end
+
+    results
+end
+
+"""
+    function compute_all_measures_val(data_val::DataFrame,
+                                      cue_obj_train::JudiLing.Cue_Matrix_Struct,
+                                      cue_obj_val::JudiLing.Cue_Matrix_Struct,
+                                      Chat_val::Union{JudiLing.SparseMatrixCSC, Matrix},
+                                      S_train::Union{JudiLing.SparseMatrixCSC, Matrix},
+                                      S_val::Union{JudiLing.SparseMatrixCSC, Matrix},
+                                      Shat_val::Union{JudiLing.SparseMatrixCSC, Matrix},
+                                      F_train::Union{JudiLing.SparseMatrixCSC, Matrix},
+                                      G_train::Union{JudiLing.SparseMatrixCSC, Matrix};
+                                      res_learn_val::Union{Array{Array{JudiLing.Result_Path_Info_Struct,1},1}, Missing}=missing,
+                                      gpi_learn_val::Union{Array{JudiLing.Gold_Path_Info_Struct,1}, Missing}=missing,
+                                      rpi_learn_val::Union{Array{JudiLing.Gold_Path_Info_Struct,1}, Missing}=missing,
+                                      sem_density_n::Int64=8,
+                                      calculate_production_uncertainty::Bool=false,
+                                      low_cost_measures_only::Bool=false)
+Compute all measures currently available in JudiLingMeasures for the validation data.
+# Arguments
+- `data_val::DataFrame`: The data for which measures should be calculated (the validation data).
+- `cue_obj_train::JudiLing.Cue_Matrix_Struct`: The cue object of the training data.
+- `cue_obj_val::JudiLing.Cue_Matrix_Struct`: The cue object of the validation data.
+- `Chat_val::Union{JudiLing.SparseMatrixCSC, Matrix}`: The Chat matrix of the validation data.
+- `S_train::Union{JudiLing.SparseMatrixCSC, Matrix}`: The S matrix of the training data.
+- `S_val::Union{JudiLing.SparseMatrixCSC, Matrix}`: The S matrix of the validation data.
+- `Shat_val::Union{JudiLing.SparseMatrixCSC, Matrix}`: The Shat matrix of the data of interest.
+- `F_train::Union{JudiLing.SparseMatrixCSC, Matrix}`: Comprehension mapping matrix for the training data.
+- `G_train::Union{JudiLing.SparseMatrixCSC, Matrix}`: Production mapping matrix for the training data.
+- `res_learn_val::Union{Array{Array{JudiLing.Result_Path_Info_Struct,1},1}, Missing}=missing`: The first output of JudiLing.learn_paths_rpi (with `check_gold_path=true`)
+- `gpi_learn_val::Union{Array{JudiLing.Gold_Path_Info_Struct,1}, Missing}=missing`: The second output of JudiLing.learn_paths_rpi (with `check_gold_path=true`)
+- `rpi_learn_val::Union{Array{JudiLing.Gold_Path_Info_Struct,1}, Missing}=missing`: The third output of JudiLing.learn_paths_rpi (with `check_gold_path=true`)
+- `low_cost_measures_only::Bool=false`: Only compute measures which are not computationally heavy. Recommended for very large datasets.
+# Returns
+- `results::DataFrame`: A dataframe with all information in `data_val` plus all the computed measures.
+"""
+function compute_all_measures_val(data_val::DataFrame,
+                                  cue_obj_train::JudiLing.Cue_Matrix_Struct,
+                                  cue_obj_val::JudiLing.Cue_Matrix_Struct,
+                                  Chat_val::Union{JudiLing.SparseMatrixCSC, Matrix},
+                                  S_train::Union{JudiLing.SparseMatrixCSC, Matrix},
+                                  S_val::Union{JudiLing.SparseMatrixCSC, Matrix},
+                                  Shat_val::Union{JudiLing.SparseMatrixCSC, Matrix},
+                                  F_train::Union{JudiLing.SparseMatrixCSC, Matrix},
+                                  G_train::Union{JudiLing.SparseMatrixCSC, Matrix};
+                                  res_learn_val::Union{Array{Array{JudiLing.Result_Path_Info_Struct,1},1}, Missing}=missing,
+                                  gpi_learn_val::Union{Array{JudiLing.Gold_Path_Info_Struct,1}, Missing}=missing,
+                                  rpi_learn_val::Union{Array{JudiLing.Gold_Path_Info_Struct,1}, Missing}=missing,
+                                  sem_density_n::Int64=8,
+                                  calculate_production_uncertainty::Bool=false,
+                                  low_cost_measures_only::Bool=false)
+    # MAKE PREPARATIONS
+
+    # generate additional objects for the measures such as
+    # - results: copy of data_val for storing the measures in
+    # - cor_s: the correlation matrix between Shat and S
+    # - df: DataFrame of res_learn, the output of learn_paths
+    # - pred_df: DataFrame with path supports for the predicted forms produced by learn_paths
+    if (!ismissing(res_learn_val) && !ismissing(gpi_learn_val) && !ismissing(rpi_learn_val))
+        results, cor_s, df_val, pred_df_val = make_measure_preparations(data_val, S_train, S_val, Shat_val,
+                                        res_learn_val, cue_obj_train, cue_obj_val, rpi_learn_val)
+    else
+        results = deepcopy(data_val)
+
+        # compute the accuracy and the correlation matrix
+        acc_comp, cor_s = JudiLing.eval_SC(Shat_val, S_val, S_train, R=true)
+    end
+
+    # CALCULATE MEASURES
+
+    # vector length/activation/uncertainty
+    results[!,"L1Shat"] = JudiLingMeasures.L1Norm(Shat_val)
+    results[!,"L2Shat"] = JudiLingMeasures.L2Norm(Shat_val)
+
+    # semantic neighbourhood
+    results[!,"SemanticDensity"] = JudiLingMeasures.density(cor_s, n=sem_density_n)
+    results[!,"ALC"] = JudiLingMeasures.ALC(cor_s)
+    results[!,"EDNN"] = EDNN(Shat_val, S_val, S_train)
+    results[!,"NNC"] = JudiLingMeasures.NNC(cor_s)
+    if !low_cost_measures_only
+        results[!,"DistanceTravelledF"] = total_distance(cue_obj_val, F_train, :F)
+    end
+
+    # comprehension accuracy
+    results[!,"TargetCorrelation"] = JudiLingMeasures.target_correlation(cor_s)
+    results[!,"rank"] = JudiLingMeasures.rank(cor_s)
+    results[!,"recognition"] = JudiLingMeasures.recognition(data_val)
+    if !low_cost_measures_only
+        results[!,"ComprehensionUncertainty"] = vec(JudiLingMeasures.uncertainty(S_val, Shat_val, S_train, method="cosine"))
+    end
+
+    # Measures of production accuracy/support/uncertainty for the target form
+    if calculate_production_uncertainty && !low_cost_measures_only
+        results[!,"ProductionUncertainty"] = vec(JudiLingMeasures.uncertainty(cue_obj_val.C, Chat_val, cue_obj_train.C, method="cosine"))
+    end
+    if !low_cost_measures_only
+        results[!,"DistanceTravelledG"] = JudiLingMeasures.total_distance(cue_obj_val, G_train, :G)
+    end
+
+    # production accuracy/support/uncertainty for the predicted form
+    results[!,"C-Precision"] = JudiLingMeasures.c_precision(Chat_val, cue_obj_val.C)
+    results[!,"L1Chat"] = JudiLingMeasures.L1Norm(Chat_val)
+    results[!,"SemanticSupportForForm"] = JudiLingMeasures.semantic_support_for_form(cue_obj_val, Chat_val)
+
+    # support for the predicted path, focusing on the path transitions and components of the path
+    results[!,"Support"] = JudiLingMeasures.last_support(cue_obj_val, Chat_val)
+
+    if (!ismissing(res_learn_val) && !ismissing(gpi_learn_val) && !ismissing(rpi_learn_val))
+        # production accuracy/support/uncertainty for the predicted form
+        results[!,"SCPP"] = SCPP(df_val, results)
+        results[!,"PathSum"] = path_sum(pred_df_val)
+        results[!,"TargetPathSum"] = target_path_sum(gpi_learn_val)
+        results[!,"PathSumChat"] = path_sum_chat(res_learn_val, Chat_val)
+
+        # support for the predicted path, focusing on the path transitions and components of the path
+        results[!,"WithinPathEntropies"] = within_path_entropies(pred_df_val)
+        results[!,"MeanWordSupport"] = mean_word_support(res_learn_val, pred_df_val)
+        results[!,"MeanWordSupportChat"] = mean_word_support_chat(res_learn_val, Chat_val)
+        results[!,"lwlr"] = lwlr(res_learn_val, pred_df_val)
+        results[!,"lwlrChat"] = lwlr_chat(res_learn_val, Chat_val)
+
+        # support for competing forms
+        results[!,"PathCounts"] = path_counts(df_val)
+        results[!,"ALDC"] = ALDC(df_val)
+        results[!,"PathEntropiesSCP"] = path_entropies_scp(df_val)
+        results[!,"PathEntropiesChat"] = path_entropies_chat(res_learn_val, Chat_val)
+    end
 
     results
 end
