@@ -515,13 +515,15 @@ It is also possible to compute measures for validation data, please see the `mea
 
 ## Bibliography
 
-Baayen, R. H., Chuang, Y. Y., and Blevins, J. P. (2018). Inflectional morphology with linear mappings. The Mental Lexicon, 13 (2), 232-270.
+Baayen, R. H., Chuang, Y.-Y., and Blevins, J. P. (2018). Inflectional morphology with linear mappings. The Mental Lexicon, 13 (2), 232-270.
 
-Chuang, Y. Y., Kang, M., Luo, X. F. and Baayen, R. H. (to appear). Vector Space Morphology with Linear Discriminative Learning. In Crepaldi, D. (Ed.) Linguistic morphology in the mind and brain.
+Chuang, Y.-Y., Kang, M., Luo, X. F. and Baayen, R. H. (to appear). Vector Space Morphology with Linear Discriminative Learning. In Crepaldi, D. (Ed.) Linguistic morphology in the mind and brain.
 
 Chuang, Y-Y., Vollmer, M-l., Shafaei-Bajestan, E., Gahl, S., Hendrix, P., and Baayen, R. H. (2020). The processing of pseudoword form and meaning in production and comprehension: A computational modeling approach using Linear Discriminative Learning. Behavior Research Methods, 1-51.
 
 Gahl, S., and Baayen, R. H. (2022). Time and thyme again: Connecting spoken word duration to models of the mental lexicon. OSF, January 22, 1-41.
+
+Heitmeier, M., Chuang, Y.-Y., and Baayen, R. H. (2022). How trial-to-trial learning shapes mappings in the mental lexicon: Modelling Lexical Decision with Linear Discriminative Learning. ArXiv, July 1, 1-38.
 
 Saito, Motoki (2022): pyldl - Linear Discriminative Learning in Python. URL: https://github.com/msaito8623/pyldl
 
