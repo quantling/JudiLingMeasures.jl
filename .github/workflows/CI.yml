@@ -34,7 +34,7 @@ jobs:
       - name: Install pyldl
         run: |
           git clone https://github.com/MariaHei/pyldl
-          pip install --upgrade pip
+          pip install pip==21.0
           pip install -e pyldl
         env:
           PYTHON: 3.8
