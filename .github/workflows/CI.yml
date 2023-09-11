@@ -53,6 +53,9 @@ jobs:
             pip install numpy
         env:
             PYTHON: 3.8
+      - name: build pycall
+        run: |
+          julia -e 'using Pkg; Pkg.build("PyCall")'
       - uses: julia-actions/julia-runtest@latest
         env:
           PYTHON: 3.8
