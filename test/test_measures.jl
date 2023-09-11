@@ -278,10 +278,10 @@ end
 
 @testset "lwlr" begin
     @testset "Training data" begin
-        @test isapprox(JudiLingMeasures.lwlr(res_learn, pred_df), [3. /0.9931199999999999, 3. /0.993252, 3. /0.993238], rtol=1e-4)
+        @test isapprox(JudiLingMeasures.lwlr(res_learn, pred_df), [3. /findmin(pred_df.timestep_support[1])[2], 3. /findmin(pred_df.timestep_support[2])[2], 3. /findmin(pred_df.timestep_support[3])[2]], rtol=1e-4)
     end
     @testset "Validation data" begin
-        @test isapprox(JudiLingMeasures.lwlr(res_learn_val, pred_df_val), [3. /0.9931199999999999], rtol=1e-4)
+        @test isapprox(JudiLingMeasures.lwlr(res_learn_val, pred_df_val), [3. /findmin(pred_df_val.timestep_support[1])[2]], rtol=1e-4)
     end
 end
 
