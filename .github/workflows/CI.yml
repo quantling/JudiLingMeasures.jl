@@ -53,6 +53,9 @@ jobs:
             pip install numpy
         env:
             PYTHON: 3.8
+      - uses: julia-actions/julia-buildpkg@latest
+        env:
+          PYTHON: 3.8
       - uses: julia-actions/julia-runtest@latest
         env:
           PYTHON: 3.8
