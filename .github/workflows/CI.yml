@@ -47,6 +47,12 @@ jobs:
             pip install -e pyldl
         env:
             PYTHON: 3.8
+      - name: Install python packages
+        run: |
+            pip install pandas
+            pip install numpy
+        env:
+            PYTHON: 3.8
       - uses: julia-actions/julia-runtest@latest
         env:
           PYTHON: ""
