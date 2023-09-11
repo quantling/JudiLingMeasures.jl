@@ -32,8 +32,9 @@ jobs:
         with:
           python-version: 3.8
       - name: Install pyldl
+        if: ${{ runner.os != 'Windows' }}
         run: |
-          git clone https://github.com/MariaHei/pyldl
+          git clone https://github.com/msaito8623/pyldl
           pip install pip==21.0
           pip install -e pyldl
         env:
