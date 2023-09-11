@@ -35,6 +35,8 @@ jobs:
         run: |
           git clone https://github.com/msaito8623/pyldl
           pip install -e pyldl
+        env:
+          PYTHON: 3.8
       - uses: julia-actions/julia-runtest@latest
         env:
           PYTHON: ""
