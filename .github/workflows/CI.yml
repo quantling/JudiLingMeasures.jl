@@ -55,7 +55,7 @@ jobs:
             PYTHON: 3.8
       - uses: julia-actions/julia-runtest@latest
         env:
-          PYTHON: ""
+          PYTHON: 3.8
       - uses: julia-actions/julia-uploadcodecov@latest
         env:
           CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
