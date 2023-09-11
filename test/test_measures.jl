@@ -179,10 +179,10 @@ end
 
 @testset "last_support" begin
     @testset "Training data" begin
-        @test isapprox(JudiLingMeasures.last_support(cue_obj, Chat), [0.99974, 0.999874, 0.99986], rtol=1e-4)
+        @test isapprox(JudiLingMeasures.last_support(cue_obj, Chat), [Chat[1,cue_obj.gold_ind[1][end]], Chat[2,cue_obj.gold_ind[2][end]], Chat[3,cue_obj.gold_ind[3][end]]], rtol=1e-4)
     end
     @testset "Validation data" begin
-        @test isapprox(JudiLingMeasures.last_support(cue_obj_val, Chat_val), [0.99974], rtol=1e-4)
+        @test isapprox(JudiLingMeasures.last_support(cue_obj_val, Chat_val), [Chat_val[1,cue_obj_val.gold_ind[1][end]]], rtol=1e-4)
     end
 end
 
