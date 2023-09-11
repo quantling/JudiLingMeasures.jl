@@ -2,10 +2,10 @@
 # test measures
 ########################################
 
-# pandas = pyimport("pandas")
-# np = pyimport("numpy")
-# pm = pyimport("pyldl.mapping")
-# lmea = pyimport("pyldl.measures")
+pandas = pyimport("pandas")
+np = pyimport("numpy")
+pm = pyimport("pyldl.mapping")
+lmea = pyimport("pyldl.measures")
 
 
 # define some data to test with
@@ -242,11 +242,11 @@ end
 @testset "Mean word support" begin
     @testset "Training data" begin
         @test isapprox(JudiLingMeasures.mean_word_support(res_learn, pred_df),
-                            [0.9931199999999999, 0.993252, 0.993238], rtol=1e-4)
+                            [sum(pred_df.timestep_support[1])/length(pred_df.timestep_support[1]), sum(pred_df.timestep_support[2])/length(pred_df.timestep_support[2]), sum(pred_df.timestep_support[3])/length(pred_df.timestep_support[3])], rtol=1e-4)
     end
     @testset "Validation data" begin
         @test isapprox(JudiLingMeasures.mean_word_support(res_learn_val, pred_df_val),
-                            [0.9931199999999999], rtol=1e-4)
+                            [sum(pred_df_val.timestep_support[1])/length(pred_df_val.timestep_support[1])], rtol=1e-4)
     end
 end
 
@@ -480,27 +480,27 @@ end
 
     # unfortunately, these tests only run locally at the moment
 
-    # @testset "Test against pyldl" begin
-    #     infl = pandas.DataFrame(Dict("word"=>["walk","walked","walks"],
-    #                          "lemma"=>["walk","walk","walk"],
-    #                          "person"=>["1/2","1/2/3","3"],
-    #                          "tense"=>["pres","past","pres"]))
-    #     cmat = pm.gen_cmat(infl.word, cores=1)
-    #     smat = pm.gen_smat_sim(infl, form="word", sep="/", dim_size=5, seed=10)
-    #     chat = pm.gen_chat(smat=smat, cmat=cmat)
-    #     shat = pm.gen_shat(cmat=cmat, smat=smat)
-    #
-    #     @test isapprox(JudiLingMeasures.uncertainty(np.array(cmat), np.array(chat), method="cosine"),
-    #                    [lmea.uncertainty("walk", chat, cmat),
-    #                     lmea.uncertainty("walked", chat, cmat),
-    #                     lmea.uncertainty("walks", chat, cmat)])
-    #
-    #     @test isapprox(JudiLingMeasures.uncertainty(np.array(smat), np.array(shat), method="cosine"),
-    #                    [lmea.uncertainty("walk", shat, smat),
-    #                     lmea.uncertainty("walked", shat, smat),
-    #                     lmea.uncertainty("walks", shat, smat)])
+    @testset "Test against pyldl" begin
+        infl = pandas.DataFrame(Dict("word"=>["walk","walked","walks"],
+                             "lemma"=>["walk","walk","walk"],
+                             "person"=>["1/2","1/2/3","3"],
+                             "tense"=>["pres","past","pres"]))
+        cmat = pm.gen_cmat(infl.word, cores=1)
+        smat = pm.gen_smat_sim(infl, form="word", sep="/", dim_size=5, seed=10)
+        chat = pm.gen_chat(smat=smat, cmat=cmat)
+        shat = pm.gen_shat(cmat=cmat, smat=smat)
 
-    # end
+        @test isapprox(JudiLingMeasures.uncertainty(np.array(cmat), np.array(chat), method="cosine"),
+                       [lmea.uncertainty("walk", chat, cmat),
+                        lmea.uncertainty("walked", chat, cmat),
+                        lmea.uncertainty("walks", chat, cmat)])
+
+        @test isapprox(JudiLingMeasures.uncertainty(np.array(smat), np.array(shat), method="cosine"),
+                       [lmea.uncertainty("walk", shat, smat),
+                        lmea.uncertainty("walked", shat, smat),
+                        lmea.uncertainty("walks", shat, smat)])
+
+    end
 end
 
 @testset "Functional Load" begin
@@ -541,41 +541,41 @@ end
 
     # unfortunately, these tests only run locally at the moment
 
-    # @testset "Test against pyldl" begin
-    #
-    #     # defining all the stuff necessary for pyldl
-    #     infl = pandas.DataFrame(Dict("word"=>["walk","walked","walks"],
-    #                          "lemma"=>["walk","walk","walk"],
-    #                          "person"=>["1/2","1/2/3","3"],
-    #                          "tense"=>["pres","past","pres"]))
-    #     cmat = pm.gen_cmat(infl.word, cores=1)
-    #     smat = pm.gen_smat_sim(infl, form="word", sep="/", dim_size=5, seed=10)
-    #     fmat = pm.gen_fmat(cmat, smat)
-    #     chat = pm.gen_chat(smat=smat, cmat=cmat)
-    #     shat = pm.gen_shat(cmat=cmat, smat=smat)
-    #
-    #     # defining all the stuff necessary for JudiLingMeasures
-    #     infl_jl = DataFrame("word"=>["walk","walked","walks"],
-    #                          "lemma"=>["walk","walk","walk"],
-    #                          "person"=>["1/2","1/2/3","3"],
-    #                          "tense"=>["pres","past","pres"])
-    #     cue_obj_jl = JudiLing.make_cue_matrix(infl_jl, target_col="word", grams=3)
-    #
-    #     sfx = ["ed#", "#wa"]
-    #
-    #     @test isapprox(JudiLingMeasures.functional_load(np.array(fmat),
-    #                                            np.array(shat),
-    #                                            cue_obj_jl,
-    #                                            cue_list=sfx,
-    #                                            method="mse"), [lmea.functional_load("ed#", fmat, "walk", smat, "mse"),
-    #                                                              lmea.functional_load("#wa", fmat, "walked", smat, "mse")], rtol=1e-3)
-    #      @test isapprox(JudiLingMeasures.functional_load(np.array(fmat),
-    #                                             np.array(shat),
-    #                                             cue_obj_jl,
-    #                                             cue_list=sfx,
-    #                                             method="corr"), [lmea.functional_load("ed#", fmat, "walk", smat, "corr"),
-    #                                                               lmea.functional_load("#wa", fmat, "walked", smat, "corr")], rtol=1e-3)
-    # end
+    @testset "Test against pyldl" begin
+
+        # defining all the stuff necessary for pyldl
+        infl = pandas.DataFrame(Dict("word"=>["walk","walked","walks"],
+                             "lemma"=>["walk","walk","walk"],
+                             "person"=>["1/2","1/2/3","3"],
+                             "tense"=>["pres","past","pres"]))
+        cmat = pm.gen_cmat(infl.word, cores=1)
+        smat = pm.gen_smat_sim(infl, form="word", sep="/", dim_size=5, seed=10)
+        fmat = pm.gen_fmat(cmat, smat)
+        chat = pm.gen_chat(smat=smat, cmat=cmat)
+        shat = pm.gen_shat(cmat=cmat, smat=smat)
+
+        # defining all the stuff necessary for JudiLingMeasures
+        infl_jl = DataFrame("word"=>["walk","walked","walks"],
+                             "lemma"=>["walk","walk","walk"],
+                             "person"=>["1/2","1/2/3","3"],
+                             "tense"=>["pres","past","pres"])
+        cue_obj_jl = JudiLing.make_cue_matrix(infl_jl, target_col="word", grams=3)
+
+        sfx = ["ed#", "#wa"]
+
+        @test isapprox(JudiLingMeasures.functional_load(np.array(fmat),
+                                               np.array(shat),
+                                               cue_obj_jl,
+                                               cue_list=sfx,
+                                               method="mse"), [lmea.functional_load("ed#", fmat, "walk", smat, "mse"),
+                                                                 lmea.functional_load("#wa", fmat, "walked", smat, "mse")], rtol=1e-3)
+         @test isapprox(JudiLingMeasures.functional_load(np.array(fmat),
+                                                np.array(shat),
+                                                cue_obj_jl,
+                                                cue_list=sfx,
+                                                method="corr"), [lmea.functional_load("ed#", fmat, "walk", smat, "corr"),
+                                                                  lmea.functional_load("#wa", fmat, "walked", smat, "corr")], rtol=1e-3)
+    end
 end
 
 @testset "All measures" begin
