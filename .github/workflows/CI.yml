@@ -33,7 +33,7 @@ jobs:
           python-version: 3.8
       - name: Install pyldl
         run: |
-          git clone https://github.com/msaito8623/pyldl
+          git clone https://github.com/MariaHei/pyldl
           pip install --upgrade pip
           pip install -e pyldl
         env:
