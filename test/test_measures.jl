@@ -257,10 +257,17 @@ end
         @test isapprox(JudiLingMeasures.target_correlation(ones(1,1)), [1.], rtol=1e-4)
         @test isequal(JudiLingMeasures.target_correlation(Matrix{Missing}(missing, 1,1)), [missing])
         @test isapprox(JudiLingMeasures.target_correlation(cor_s_all), [1.0, 1.0, 1.0], rtol=1e-4)
+
+        @test isapprox(JudiLingMeasures.target_correlation(ma2, ma3), [0.662266, 0.29554, -0.863868, 0.354787], rtol=1e-4)
+        @test isnan(JudiLingMeasures.target_correlation(zeros(1,1), zeros(1,1))[1])
+        @test isnan(JudiLingMeasures.target_correlation(ones(1,1), ones(1,1))[1])
+        @test isapprox(JudiLingMeasures.target_correlation(Shat, S), [1.0, 1.0, 1.0], rtol=1e-4)
     end
     @testset "Validation data" begin
         @test isapprox(JudiLingMeasures.target_correlation(cor_s2), [0.662266, 0.29554, -0.863868, 0.354787], rtol=1e-4)
         @test isapprox(JudiLingMeasures.target_correlation(cor_s_all_val), [1.0], rtol=1e-4)
+
+        @test isapprox(JudiLingMeasures.target_correlation(Shat_val, S_val), [1.0], rtol=1e-4)
     end
 end
 

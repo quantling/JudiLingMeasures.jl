@@ -276,6 +276,29 @@ function target_correlation(cor_s::Union{JudiLing.SparseMatrixCSC, Matrix})
 end
 
 """
+    target_correlation(cor_s::Union{JudiLing.SparseMatrixCSC, Matrix})
+Calculate the correlation between each predicted vector and its target vector.
+# Arguments
+- `Xhat::Union{JudiLing.SparseMatrixCSC, Matrix}`: matrix with predicted vectors in rows
+- `X::Union{JudiLing.SparseMatrixCSC, Matrix}`: matrix with target vectors in rows
+# Examples
+```jldoctest
+julia> Shat = [[1 2 1 1]; [1 -2 3 1]; [1 -2 3 3]; [0 0 1 2]]
+julia> S = [[-1 2 1 1]; [1 2 3 1]; [1 2 0 1]; [0.5 -2 1.5 0]]
+julia> target_correlation(Shat, S)
+4-element Vector{Float64}:
+  0.6622661785325219
+  0.2955402316445243
+ -0.86386842558136
+  0.35478743759344955
+```
+"""
+function target_correlation(Xhat::Union{JudiLing.SparseMatrixCSC, Matrix},
+    X::Union{JudiLing.SparseMatrixCSC, Matrix})
+    vec(correlation_diagonal_rowwise(Xhat, X))
+end
+
+"""
     rank(cor_s::Union{JudiLing.SparseMatrixCSC, Matrix})
 Return the rank of the correct form among the comprehension candidates.
 # Arguments
