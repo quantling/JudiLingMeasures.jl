@@ -134,7 +134,7 @@ cor_s2 = JudiLingMeasures.correlation_rowwise(ma2, ma5)
         @test JudiLingMeasures.density(zeros((1,1)), n=1) == [0]
         @test JudiLingMeasures.density(ones((1,1)), n=1) == [1]
         @test isequal(JudiLingMeasures.density([[1 2 missing]; [-1 -2 -3]; [1 2 3]], n=2), [missing; -1.5; 2.5])
-        @test_throws MethodError JudiLingMeasures.density(zeros((1,1))) == [0]
+        @test_throws ArgumentError JudiLingMeasures.density(zeros((1,1))) == [0]
     end
     @testset "Validation data" begin
         @test isapprox(JudiLingMeasures.density(cor_s2, n=2), vec([0.7393784999999999 0.6420815 0.44968675 0.2811505]), rtol=1e-4)
@@ -644,6 +644,16 @@ end
            @test "DistanceTravelledF" in names(all_measures)
            @test "DistanceTravelledG" in names(all_measures)
            @test !("WithinPathEntropies" in names(all_measures))
+
+           all_measures =  JudiLingMeasures.compute_all_measures_train(dat, # the data of interest
+                                                                cue_obj, # the cue_obj of the training data
+                                                                Chat, # the Chat of the data of interest
+                                                                S, # the S matrix of the data of interest
+                                                                Shat, # the Shat matrix of the data of interest
+                                                                sem_density_n=2)
+            @test all_measures != 1
+            @test !("DistanceTravelledF" in names(all_measures))
+            @test !("DistanceTravelledG" in names(all_measures))
     end
     @testset "Validation data" begin
         # just make sure that this function runs without error
@@ -710,5 +720,17 @@ end
            @test "DistanceTravelledF" in names(all_measures)
            @test "DistanceTravelledG" in names(all_measures)
            @test !("WithinPathEntropies" in names(all_measures))
+
+           all_measures =  JudiLingMeasures.compute_all_measures_val(val_dat, # the data of interest
+                                                                cue_obj, # the cue_obj of the training data
+                                                                cue_obj_val,
+                                                                Chat_val, # the Chat of the data of interest
+                                                                S, # the S matrix of the data of interest
+                                                                S_val,
+                                                                Shat_val,
+                                                                sem_density_n=2)
+            @test all_measures != 1
+            @test !("DistanceTravelledF" in names(all_measures))
+            @test !("DistanceTravelledG" in names(all_measures))
     end
 end

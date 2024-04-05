@@ -7,8 +7,6 @@ This is code for JudiLingMeasures. Most measures are based on R implementations 
 
 You can find the documentation [here](https://mariahei.github.io/JudiLingMeasures.jl/dev/index.html).
 
-PLEASE NOTE THAT THIS PACKAGE IS WORK IN PROGRESS. MAJOR CHANGES TO THE CODE ARE POSSIBLE AT ANY POINT AND NEW MEASURES ARE STILL BEING ADDED.
-
 ## Installation
 
 ```
