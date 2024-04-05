@@ -81,7 +81,7 @@ julia> sem_density_mean(cor_s, 2)
 function sem_density_mean(s_cor::Union{JudiLing.SparseMatrixCSC, Matrix},
                           n::Int)
     if n > size(s_cor,2)
-        throw(MethodError("n larger than the dimension of the semantic vectors"))
+        throw(ArgumentError("n larger than the dimension of the semantic vectors"))
     end
     sems = Vector{Union{Missing, Float32}}(missing, size(s_cor,1))
     for i in 1:size(s_cor)[1]
@@ -477,8 +477,8 @@ function compute_all_measures_train(data_train::DataFrame,
                                     Chat_train::Union{JudiLing.SparseMatrixCSC, Matrix},
                                     S_train::Union{JudiLing.SparseMatrixCSC, Matrix},
                                     Shat_train::Union{JudiLing.SparseMatrixCSC, Matrix},
-                                    F_train::Union{JudiLing.SparseMatrixCSC, Matrix},
-                                    G_train::Union{JudiLing.SparseMatrixCSC, Matrix};
+                                    F_train::Union{JudiLing.SparseMatrixCSC, Matrix, Missing},
+                                    G_train::Union{JudiLing.SparseMatrixCSC, Matrix, Missing};
                                     res_learn_train::Union{Array{Array{JudiLing.Result_Path_Info_Struct,1},1}, Missing}=missing,
                                     gpi_learn_train::Union{Array{JudiLing.Gold_Path_Info_Struct,1}, Missing}=missing,
                                     rpi_learn_train::Union{Array{JudiLing.Gold_Path_Info_Struct,1}, Missing}=missing,
@@ -514,7 +514,7 @@ function compute_all_measures_train(data_train::DataFrame,
     results[!,"EDNN"] = EDNN(Shat_train, S_train)
     results[!,"NNC"] = NNC(cor_s)
 
-    if !low_cost_measures_only
+    if !low_cost_measures_only && !ismissing(F_train)
         results[!,"DistanceTravelledF"] = total_distance(cue_obj_train, F_train, :F)
     end
 
@@ -531,7 +531,7 @@ function compute_all_measures_train(data_train::DataFrame,
     if calculate_production_uncertainty && !low_cost_measures_only
         results[!,"ProductionUncertainty"] = vec(uncertainty(cue_obj_train.C, Chat_train, method="cosine"))
     end
-    if !low_cost_measures_only
+    if !low_cost_measures_only && !ismissing(G_train)
         results[!,"DistanceTravelledG"] = total_distance(cue_obj_train, G_train, :G)
     end
 
@@ -565,6 +565,61 @@ function compute_all_measures_train(data_train::DataFrame,
     end
 
     results
+end
+
+"""
+    function compute_all_measures_train(data_train::DataFrame,
+                                        cue_obj_train::JudiLing.Cue_Matrix_Struct,
+                                        Chat_train::Union{JudiLing.SparseMatrixCSC, Matrix},
+                                        S_train::Union{JudiLing.SparseMatrixCSC, Matrix},
+                                        Shat_train::Union{JudiLing.SparseMatrixCSC, Matrix};
+                                        res_learn_train::Union{Array{Array{JudiLing.Result_Path_Info_Struct,1},1}, Missing}=missing,
+                                        gpi_learn_train::Union{Array{JudiLing.Gold_Path_Info_Struct,1}, Missing}=missing,
+                                        rpi_learn_train::Union{Array{JudiLing.Gold_Path_Info_Struct,1}, Missing}=missing,
+                                        sem_density_n::Int64=8,
+                                        calculate_production_uncertainty::Bool=false,
+                                        low_cost_measures_only::Bool=false)
+Compute all measures currently available in JudiLingMeasures for the training data if F and G are not available (usually for DDL models).
+# Arguments
+- `data_train::DataFrame`: The data for which measures should be calculated (the training data).
+- `cue_obj_train::JudiLing.Cue_Matrix_Struct`: The cue object of the training data.
+- `Chat_train::Union{JudiLing.SparseMatrixCSC, Matrix}`: The Chat matrix of the training data.
+- `S_train::Union{JudiLing.SparseMatrixCSC, Matrix}`: The S matrix of the training data.
+- `Shat_train::Union{JudiLing.SparseMatrixCSC, Matrix}`: The Shat matrix of the training data.
+- `res_learn_train::Union{Array{Array{JudiLing.Result_Path_Info_Struct,1},1}, Missing}=missing`: The first output of JudiLing.learn_paths_rpi (with `check_gold_path=true`)
+- `gpi_learn_train::Union{Array{JudiLing.Gold_Path_Info_Struct,1}, Missing}=missing`: The second output of JudiLing.learn_paths_rpi (with `check_gold_path=true`)
+- `rpi_learn_train::Union{Array{JudiLing.Gold_Path_Info_Struct,1}, Missing}=missing`: The third output of JudiLing.learn_paths_rpi (with `check_gold_path=true`)
+- `sem_density_n::Int64=8`: Number of neighbours to take into account in Semantic Density measure.
+- `calculate_production_uncertainty`: "Production Uncertainty" is computationally very heavy for large C matrices, therefore its computation is turned off by default.
+- `low_cost_measures_only::Bool=false`: Only compute measures which are not computationally heavy. Recommended for very large datasets.
+# Returns
+- `results::DataFrame`: A dataframe with all information in `data_train` plus all the computed measures.
+"""
+function compute_all_measures_train(data_train::DataFrame,
+                                    cue_obj_train::JudiLing.Cue_Matrix_Struct,
+                                    Chat_train::Union{JudiLing.SparseMatrixCSC, Matrix},
+                                    S_train::Union{JudiLing.SparseMatrixCSC, Matrix},
+                                    Shat_train::Union{JudiLing.SparseMatrixCSC, Matrix};
+                                    res_learn_train::Union{Array{Array{JudiLing.Result_Path_Info_Struct,1},1}, Missing}=missing,
+                                    gpi_learn_train::Union{Array{JudiLing.Gold_Path_Info_Struct,1}, Missing}=missing,
+                                    rpi_learn_train::Union{Array{JudiLing.Gold_Path_Info_Struct,1}, Missing}=missing,
+                                    sem_density_n::Int64=8,
+                                    calculate_production_uncertainty::Bool=false,
+                                    low_cost_measures_only::Bool=false)
+
+    compute_all_measures_train(data_train,
+                                cue_obj_train,
+                                Chat_train,
+                                S_train,
+                                Shat_train,
+                                missing,
+                                missing;
+                                res_learn_train=res_learn_train,
+                                gpi_learn_train=gpi_learn_train,
+                                rpi_learn_train=rpi_learn_train,
+                                sem_density_n=sem_density_n,
+                                calculate_production_uncertainty=calculate_production_uncertainty,
+                                low_cost_measures_only=low_cost_measures_only)
 end
 
 """
@@ -608,8 +663,8 @@ function compute_all_measures_val(data_val::DataFrame,
                                   S_train::Union{JudiLing.SparseMatrixCSC, Matrix},
                                   S_val::Union{JudiLing.SparseMatrixCSC, Matrix},
                                   Shat_val::Union{JudiLing.SparseMatrixCSC, Matrix},
-                                  F_train::Union{JudiLing.SparseMatrixCSC, Matrix},
-                                  G_train::Union{JudiLing.SparseMatrixCSC, Matrix};
+                                  F_train::Union{JudiLing.SparseMatrixCSC, Matrix, Missing},
+                                  G_train::Union{JudiLing.SparseMatrixCSC, Matrix, Missing};
                                   res_learn_val::Union{Array{Array{JudiLing.Result_Path_Info_Struct,1},1}, Missing}=missing,
                                   gpi_learn_val::Union{Array{JudiLing.Gold_Path_Info_Struct,1}, Missing}=missing,
                                   rpi_learn_val::Union{Array{JudiLing.Gold_Path_Info_Struct,1}, Missing}=missing,
@@ -644,7 +699,7 @@ function compute_all_measures_val(data_val::DataFrame,
     results[!,"ALC"] = JudiLingMeasures.ALC(cor_s)
     results[!,"EDNN"] = EDNN(Shat_val, S_val, S_train)
     results[!,"NNC"] = JudiLingMeasures.NNC(cor_s)
-    if !low_cost_measures_only
+    if !low_cost_measures_only && !ismissing(F_train)
         results[!,"DistanceTravelledF"] = total_distance(cue_obj_val, F_train, :F)
     end
 
@@ -660,7 +715,7 @@ function compute_all_measures_val(data_val::DataFrame,
     if calculate_production_uncertainty && !low_cost_measures_only
         results[!,"ProductionUncertainty"] = vec(JudiLingMeasures.uncertainty(cue_obj_val.C, Chat_val, cue_obj_train.C, method="cosine"))
     end
-    if !low_cost_measures_only
+    if !low_cost_measures_only && !ismissing(G_train)
         results[!,"DistanceTravelledG"] = JudiLingMeasures.total_distance(cue_obj_val, G_train, :G)
     end
 
@@ -695,6 +750,68 @@ function compute_all_measures_val(data_val::DataFrame,
 
     results
 end
+
+"""
+    function compute_all_measures_val(data_val::DataFrame,
+                                      cue_obj_train::JudiLing.Cue_Matrix_Struct,
+                                      cue_obj_val::JudiLing.Cue_Matrix_Struct,
+                                      Chat_val::Union{JudiLing.SparseMatrixCSC, Matrix},
+                                      S_train::Union{JudiLing.SparseMatrixCSC, Matrix},
+                                      S_val::Union{JudiLing.SparseMatrixCSC, Matrix},
+                                      Shat_val::Union{JudiLing.SparseMatrixCSC, Matrix};
+                                      res_learn_val::Union{Array{Array{JudiLing.Result_Path_Info_Struct,1},1}, Missing}=missing,
+                                      gpi_learn_val::Union{Array{JudiLing.Gold_Path_Info_Struct,1}, Missing}=missing,
+                                      rpi_learn_val::Union{Array{JudiLing.Gold_Path_Info_Struct,1}, Missing}=missing,
+                                      sem_density_n::Int64=8,
+                                      calculate_production_uncertainty::Bool=false,
+                                      low_cost_measures_only::Bool=false)
+Compute all measures currently available in JudiLingMeasures for the validation data if F and G are not available (usually for DDL models).
+# Arguments
+- `data_val::DataFrame`: The data for which measures should be calculated (the validation data).
+- `cue_obj_train::JudiLing.Cue_Matrix_Struct`: The cue object of the training data.
+- `cue_obj_val::JudiLing.Cue_Matrix_Struct`: The cue object of the validation data.
+- `Chat_val::Union{JudiLing.SparseMatrixCSC, Matrix}`: The Chat matrix of the validation data.
+- `S_train::Union{JudiLing.SparseMatrixCSC, Matrix}`: The S matrix of the training data.
+- `S_val::Union{JudiLing.SparseMatrixCSC, Matrix}`: The S matrix of the validation data.
+- `Shat_val::Union{JudiLing.SparseMatrixCSC, Matrix}`: The Shat matrix of the data of interest.
+- `res_learn_val::Union{Array{Array{JudiLing.Result_Path_Info_Struct,1},1}, Missing}=missing`: The first output of JudiLing.learn_paths_rpi (with `check_gold_path=true`)
+- `gpi_learn_val::Union{Array{JudiLing.Gold_Path_Info_Struct,1}, Missing}=missing`: The second output of JudiLing.learn_paths_rpi (with `check_gold_path=true`)
+- `rpi_learn_val::Union{Array{JudiLing.Gold_Path_Info_Struct,1}, Missing}=missing`: The third output of JudiLing.learn_paths_rpi (with `check_gold_path=true`)
+- `low_cost_measures_only::Bool=false`: Only compute measures which are not computationally heavy. Recommended for very large datasets.
+# Returns
+- `results::DataFrame`: A dataframe with all information in `data_val` plus all the computed measures.
+"""
+function compute_all_measures_val(data_val::DataFrame,
+                                  cue_obj_train::JudiLing.Cue_Matrix_Struct,
+                                  cue_obj_val::JudiLing.Cue_Matrix_Struct,
+                                  Chat_val::Union{JudiLing.SparseMatrixCSC, Matrix},
+                                  S_train::Union{JudiLing.SparseMatrixCSC, Matrix},
+                                  S_val::Union{JudiLing.SparseMatrixCSC, Matrix},
+                                  Shat_val::Union{JudiLing.SparseMatrixCSC, Matrix};
+                                  res_learn_val::Union{Array{Array{JudiLing.Result_Path_Info_Struct,1},1}, Missing}=missing,
+                                  gpi_learn_val::Union{Array{JudiLing.Gold_Path_Info_Struct,1}, Missing}=missing,
+                                  rpi_learn_val::Union{Array{JudiLing.Gold_Path_Info_Struct,1}, Missing}=missing,
+                                  sem_density_n::Int64=8,
+                                  calculate_production_uncertainty::Bool=false,
+                                  low_cost_measures_only::Bool=false)
+
+  compute_all_measures_val(data_val,
+                                    cue_obj_train,
+                                    cue_obj_val,
+                                    Chat_val,
+                                    S_train,
+                                    S_val,
+                                    Shat_val,
+                                    missing,
+                                    missing;
+                                    res_learn_val=res_learn_val,
+                                    gpi_learn_val=gpi_learn_val,
+                                    rpi_learn_val=rpi_learn_val,
+                                    sem_density_n=sem_density_n,
+                                    calculate_production_uncertainty=calculate_production_uncertainty,
+                                    low_cost_measures_only=low_cost_measures_only)
+end
+
 
 function safe_divide(x, y)
     if (y != 0) & (!ismissing(y)) & (!ismissing(x))

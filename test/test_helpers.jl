@@ -45,7 +45,7 @@ end
     cs = JudiLingMeasures.correlation_rowwise([1. 2. 3.], [5. 1. 19.])
     @test isapprox(vec(JudiLingMeasures.sem_density_mean(cs,1)),
                    vec([0.7406128966515281]))
-    @test_throws MethodError JudiLingMeasures.sem_density_mean(cs,5)
+    @test_throws ArgumentError JudiLingMeasures.sem_density_mean(cs,5)
     cs = JudiLingMeasures.correlation_rowwise(ma2, ma3)
     @test isapprox(vec(JudiLingMeasures.sem_density_mean(cs, 3)),
                    vec([0.550947 0.28884766666666667 0.19702316666666667 0.15713063333333335]), rtol=1e-4)
