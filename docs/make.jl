@@ -12,6 +12,6 @@ makedocs(
 )
 
 deploydocs(
-    repo = "github.com/MariaHei/JudiLingMeasures.jl.git",
+    repo = "github.com/quantling/JudiLingMeasures.jl.git",
     devbranch = "main"
 )
