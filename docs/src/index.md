@@ -1,15 +1,14 @@
 # JudiLingMeasures.jl
 
+JudiLingMeasures enables easy calculation of measures in Discriminative Lexicon Models developed with [JudiLing](https://github.com/quantling/JudiLing.jl) (Luo, Heitmeier, Chuang and Baayen, 2024).
 
-This is code for JudiLingMeasures. Most measures are based on R implementations in WpmWithLdl (Baayen et al., 2018) and [LdlConvFunctions](https://github.com/dosc91/LDLConvFunctions) (Schmitz, 2021) and the python implementation in [pyldl](https://github.com/msaito8623/pyldl) (Saito, 2022) (but all errors are my own). The conceptual work behind this package is therefore very much an effort of many people (see [Bibliography](@ref)). I have tried to acknowledge where each measure is used/introduced, but if I have missed anything, or you find any errors please let me know: maria dot heitmeier at uni dot tuebingen dot de.
-
-PLEASE NOTE THAT THIS PACKAGE IS WORK IN PROGRESS. MAJOR CHANGES TO THE CODE ARE POSSIBLE AT ANY POINT AND NEW MEASURES ARE STILL BEING ADDED.
+Most measures are based on R implementations in WpmWithLdl (Baayen et al., 2018) and [LdlConvFunctions](https://github.com/dosc91/LDLConvFunctions) (Schmitz, 2021) and the python implementation in [pyldl](https://github.com/msaito8623/pyldl) (Saito, 2022) (but all errors are my own). The conceptual work behind this package is therefore very much an effort of many people (see [Bibliography](@ref)). I have tried to acknowledge where each measure is used/introduced, but if I have missed anything, or you find any errors please let me know: maria dot heitmeier at uni dot tuebingen dot de.
 
 ## Installation
 
 ```
 using Pkg
-Pkg.add("https://github.com/MariaHei/JudiLingMeasures.jl")
+Pkg.add("https://github.com/quantling/JudiLingMeasures.jl")
 ```
 
 Requires JudiLing 0.5.5. Update your JudiLing version by running
@@ -27,7 +26,7 @@ For a demo of this package, please see `notebooks/measures_demo.ipynb`.
 
 ## Calculating measures in this package
 
-The following gives an overview over all measures available in this package. For a closer description of the parameters, please refer to [Measures](@ref). All measures come with examples. In order to run them, first run the following piece of code, taken from the [Readme of the JudiLing package](https://github.com/MegamindHenry/JudiLing.jl). For a detailed explanation of this code please refer to the [JudiLing Readme](https://github.com/MegamindHenry/JudiLing.jl) and [documentation](https://megamindhenry.github.io/JudiLing.jl/stable/).
+The following gives an overview over all measures available in this package. For a closer description of the parameters, please refer to [Measures](@ref). All measures come with examples. In order to run them, first run the following piece of code, taken from the [Readme of the JudiLing package](https://github.com/quantling/JudiLing.jl). For a detailed explanation of this code please refer to the [JudiLing Readme](https://github.com/quantling/JudiLing.jl) and [documentation](https://quantling.github.io/JudiLing.jl/stable/).
 
 ```
 using JudiLing
