@@ -17,6 +17,7 @@ jobs:
           - '1.8'
           - '1.9'
           - '1.10'
+          - '1.11'
         os:
           - ubuntu-latest
           - macOS-latest
@@ -29,35 +30,19 @@ jobs:
         with:
           version: ${{ matrix.version }}
           arch: ${{ matrix.arch }}
-      - name: Set up Python 3.8
+      - name: Set up Python 3.11
         uses: actions/setup-python@v4
         with:
-          python-version: 3.8
-      - name: Install pyldl (Linux/MacOS)
-        if: ${{ runner.os != 'Windows' }}
-        run: |
-          git clone https://github.com/msaito8623/pyldl
-          pip install pip==21.0
-          pip install -e pyldl
-        env:
-          PYTHON: 3.8
-      - name: Install pyldl (Windows)
-        if: ${{ runner.os == 'Windows' }}
-        run: |
-            git clone https://github.com/msaito8623/pyldl
-            c:\hostedtoolcache\windows\python\3.8.10\x64\python.exe -m pip install pip==21.0
-            pip install -e pyldl
-        env:
-            PYTHON: 3.8
+          python-version: 3.11
       - name: Install python packages
         run: |
             pip install pandas
             pip install numpy
         env:
-            PYTHON: 3.8
+            PYTHON: 3.11
       - uses: julia-actions/julia-buildpkg@latest
         env:
-          PYTHON: 3.8
+          PYTHON: 3.11
       - uses: julia-actions/julia-runtest@latest
         env:
-          PYTHON: 3.8
+          PYTHON: 3.11
