@@ -1,0 +1,8 @@
+# This CondaPkg.toml is only required during testing
+
+[deps]
+pandas = ""
+numpy = ""
+
+[pip.deps]
+discriminative-lexicon-model = ""
