@@ -7,7 +7,10 @@ using LinearAlgebra
 using Statistics
 using Test
 using Distances
-using PythonCall
+
+!Sys.iswindows()
+  using PythonCall
+end
 
 # Test scripts
 include("test_helpers.jl")
