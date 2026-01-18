@@ -13,7 +13,7 @@ You can find the documentation [here](https://quantling.github.io/JudiLingMeasur
 
 ```
 using Pkg
-Pkg.add("JudiLingMeasures.jl")
+Pkg.add("JudiLingMeasures")
 ```
 
 Note: Requires JudiLing 0.5.5. Update your JudiLing version by running
