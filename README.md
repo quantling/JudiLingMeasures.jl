@@ -1,6 +1,6 @@
 # JudiLingMeasures.jl
 
-[![Dev](https://img.shields.io/badge/docs-dev-blue.svg)](https://quantling.github.io/JudiLingMeasures.jl/dev)
+[![Dev](https://img.shields.io/badge/docs-dev-blue.svg)](https://quantling.github.io/JudiLingMeasures.jl/dev/index.html)
 [![Build Status](https://github.com/quantling/JudiLingMeasures.jl/workflows/CI/badge.svg)](https://github.com/quantling/JudiLingMeasures.jl/actions)
 
 JudiLingMeasures enables easy calculation of measures in Discriminative Lexicon Models developed with [JudiLing](https://github.com/quantling/JudiLing.jl) (Luo, Heitmeier, Chuang and Baayen, 2024).
