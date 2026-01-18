@@ -1,7 +1,7 @@
 name = "JudiLingMeasures"
 uuid = "c131b360-78aa-49ef-85bf-52f23aef648f"
 authors = ["MariaHei <mabuwu83@gmail.com>"]
-version = "0.2.0"
+version = "1.0.0"
 
 [deps]
 DataFrames = "a93c6f00-e57d-5684-b7b6-d8193f3e46c0"
