@@ -8,7 +8,7 @@ using Statistics
 using Test
 using Distances
 
-!Sys.iswindows()
+if !Sys.iswindows()
   using PythonCall
 end
 

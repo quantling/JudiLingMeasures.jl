@@ -2,10 +2,12 @@
 # test measures
 ########################################
 
-pandas = pyimport("pandas")
-np = pyimport("numpy")
-pm = pyimport("discriminative_lexicon_model.mapping")
-lmea = pyimport("discriminative_lexicon_model.measures")
+if !Sys.iswindows()
+  pandas = pyimport("pandas")
+  np = pyimport("numpy")
+  pm = pyimport("discriminative_lexicon_model.mapping")
+  lmea = pyimport("discriminative_lexicon_model.measures")
+end
 
 
 # define some data to test with
