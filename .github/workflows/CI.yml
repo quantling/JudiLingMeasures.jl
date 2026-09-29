@@ -32,8 +32,7 @@ jobs:
       # Add Python dependencies only on non-Windows
       - name: Add CondaPkg and PythonCall
         if: runner.os != 'Windows'
-        run: julia --project=test -e 'using Pkg; Pkg.add("CondaPkg"); Pkg.add("PythonCall")'
-
+        run: julia --project=test -e 'using Pkg; Pkg.add("CondaPkg"); Pkg.add("PythonCall"); using CondaPkg; CondaPkg.add("python"; version=">=3.10,<3.14")'
       - uses: julia-actions/julia-buildpkg@latest
 
       - uses: julia-actions/julia-runtest@latest
