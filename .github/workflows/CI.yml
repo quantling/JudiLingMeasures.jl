@@ -12,14 +12,14 @@ jobs:
     strategy:
       matrix:
         version:
-          - '1.10'
-          - '1.11'
-          - '1.12'
+          # - '1.10'
+          # - '1.11'
+          # - '1.12'
           - '1.13'
         os:
-          - ubuntu-latest
+          # - ubuntu-latest
           - macOS-latest
-          - windows-latest
+          # - windows-latest
         arch:
           - x64
     steps:
