@@ -2,7 +2,7 @@
 # test measures
 ########################################
 
-if !Sys.iswindows() and !Sys.isapple()
+if (!Sys.iswindows() & !Sys.isapple())
   pandas = pyimport("pandas")
   np = pyimport("numpy")
   pm = pyimport("discriminative_lexicon_model.mapping")
@@ -487,7 +487,7 @@ end
         end
     end
 
-    if !Sys.iswindows() and !Sys.isapple()
+    if (!Sys.iswindows() & !Sys.isapple())
       @testset "Test against pyldl" begin
           infl = pandas.DataFrame(pydict(Dict("word"=>["walk","walked","walks"],
                                 "lemma"=>["walk","walk","walk"],
@@ -555,7 +555,7 @@ end
         end
     end
 
-    if !Sys.iswindows() and !Sys.isapple()
+    if (!Sys.iswindows() & !Sys.isapple())
       @testset "Test against pyldl" begin
 
            # defining all the stuff necessary for pyldl
