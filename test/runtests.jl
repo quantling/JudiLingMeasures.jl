@@ -8,7 +8,7 @@ using Statistics
 using Test
 using Distances
 
-if !Sys.iswindows()
+if (!Sys.iswindows() & !Sys.isapple())
   using PythonCall
 end
 
