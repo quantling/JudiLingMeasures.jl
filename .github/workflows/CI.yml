@@ -1,15 +1,21 @@
 name: CI
+
 on:
   push:
     branches:
       - main
     tags: '*'
   pull_request:
+
+permissions:
+  contents: read
+
 jobs:
   test:
-    name: Julia ${{ matrix.version }} - ${{ matrix.os }} - ${{ matrix.arch }}
+    name: Julia ${{ matrix.version }} - ${{ matrix.os }}
     runs-on: ${{ matrix.os }}
     strategy:
+      fail-fast: false
       matrix:
         version:
           - '1.10'
@@ -20,19 +26,20 @@ jobs:
           - ubuntu-latest
           - macOS-latest
           - windows-latest
-        arch:
-          - x64
     steps:
-      - uses: actions/checkout@v1
-      - uses: julia-actions/setup-julia@latest
+      - uses: actions/checkout@v4
+
+      - uses: julia-actions/setup-julia@v2
         with:
           version: ${{ matrix.version }}
-          arch: ${{ matrix.arch }}
 
-      # Add Python dependencies only on non-Windows
+      - uses: julia-actions/cache@v2
+
+      # Python dependencies on Linux only
       - name: Add CondaPkg and PythonCall
         if: runner.os == 'Linux'
-        run: julia --project=test -e 'using Pkg; Pkg.add("CondaPkg"); Pkg.add("PythonCall");'
-      - uses: julia-actions/julia-buildpkg@latest
+        run: julia --project=test -e 'using Pkg; Pkg.add(["CondaPkg", "PythonCall"])'
 
-      - uses: julia-actions/julia-runtest@latest
+      - uses: julia-actions/julia-buildpkg@v1
+
+      - uses: julia-actions/julia-runtest@v1
